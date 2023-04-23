@@ -25,8 +25,6 @@ public class DiamondHit implements Listener {
     public void onDiamondHit(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player damager && event.getEntity() instanceof Player victim)) return;
 
-        // check if victim has diamond armor equipped
-
         ItemStack[] items = victim.getEquipment().getArmorContents();
 
         boolean hasDiamondArmor = false;
