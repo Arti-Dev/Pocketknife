@@ -22,9 +22,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 
-public class FunnyPickaxe implements CommandExecutor, Listener {
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+public class FunnyPickaxe implements Listener {
+    protected static boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             int amount = 1;
             if (args.length >= 1) {
@@ -72,7 +71,7 @@ public class FunnyPickaxe implements CommandExecutor, Listener {
             }
         }
     }
-    private ItemStack goldenPickaxe(int quantity) {
+    private static ItemStack goldenPickaxe(int quantity) {
         ItemStack item = new ItemStack(Material.GOLDEN_PICKAXE);
         ItemMeta meta = item.getItemMeta();
 

@@ -12,8 +12,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class SpawnPigsOnDeath implements Listener, CommandExecutor {
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+public class SpawnPigsOnDeath implements Listener {
+	protected static boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (sender instanceof Player) {
 			sender.sendMessage("All this feature does is spawn ten pigs when someone dies.");
 			return true;

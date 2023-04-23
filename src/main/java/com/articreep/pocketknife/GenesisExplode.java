@@ -21,10 +21,9 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * This was used for the Pit Day 2022 video! <a href="https://www.youtube.com/watch?v=JkHlECk1_Ao">...</a>
  */
-public class GenesisExplode implements CommandExecutor {
+public class GenesisExplode {
     // TODO add a config file disabling this
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    protected static boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         Location l;
         World w = Bukkit.getWorld("Genesis");
         if (w == null) {
@@ -76,7 +75,7 @@ public class GenesisExplode implements CommandExecutor {
         return true;
     }
 
-    private Vector randomVec() {
+    private static Vector randomVec() {
         return new Vector(ThreadLocalRandom.current().nextDouble(-3, 3), Math.random() * 3,
                 ThreadLocalRandom.current().nextDouble(-3, 3));
     }

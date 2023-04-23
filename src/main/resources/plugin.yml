@@ -4,12 +4,6 @@ version: 1.2
 author: Arti_Creep
 api-version: 1.19
 commands:
-  funnypickaxe:
-    description: Gives the funny pickaxe
-    usage: /funnypickaxe
-  genesisexplode:
-    description: Explode the Pit of Genesis.
-    usage: /genesisexplode
-  spawnpigsondeath:
-    description: Information for the SpawnPigsOnDeath plugin.
-    usage: /spawnpigsondeath
+  pocketknife:
+    description: Used to access various experiments from Pocketknife.
+    usage: /pocketknife <feature> <args>

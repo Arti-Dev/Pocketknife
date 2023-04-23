@@ -3,11 +3,16 @@ package com.articreep.pocketknife;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Utils {
     /**
@@ -66,6 +71,35 @@ public class Utils {
         vector.multiply(factor);
 
         return vector;
+    }
+
+    public static Method getCommandMethod(String className, ClassLoader classLoader) {
+        Class<?> targetClass;
+        try {
+            targetClass = Class.forName(className, false, classLoader);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        Method m;
+        try {
+            m = targetClass.getMethod("runCommand", CommandSender.class, Command.class, String.class, String[].class);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return m;
+
+    }
+
+    public static String[] removeFirstArg(String[] args) {
+        ArrayList<String> argsList = new ArrayList<>(Arrays.asList(args));
+        argsList.remove(0);
+        // TODO I don't know what I'm doing here
+        String[] strings = new String[0];
+        return argsList.toArray(strings);
     }
 
 }
