@@ -1,0 +1,10 @@
+name: PocketKnife
+main: com.articreep.pocketknife.Main
+version: 1.0
+author: Arti_Creep
+api-version: 1.19
+commands:
+  funnypickaxe:
+    description: Gives the funny pickaxe
+    usage: /funnypickaxe
+
