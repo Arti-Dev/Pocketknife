@@ -40,7 +40,6 @@ public class Utils {
     public static Vector entitiesToNormalizedVector(Entity start, Entity end, double factor) {
         if (start.getWorld() != end.getWorld()) throw new IllegalArgumentException("Entities' worlds do not match!");
 
-        World w = start.getWorld();
         Location startLoc = start.getLocation();
         Location endLoc = end.getLocation();
 
@@ -63,8 +62,6 @@ public class Utils {
     public static Vector locationsToNormalizedVector(Location start, Location end, double factor) {
         if (start.getWorld() != end.getWorld()) throw new IllegalArgumentException("Locations' worlds do not match!");
 
-        World w = start.getWorld();
-
         // Generate vector, player - tnt = vector
         Vector vector = end.toVector().subtract(start.toVector());
         vector.normalize();
@@ -73,6 +70,12 @@ public class Utils {
         return vector;
     }
 
+    /**
+     * Gets a runCommand method object from the specified class name. Make sure hasCommandMethod is checked!
+     * @param className class name
+     * @param classLoader class loader from Bukkit
+     * @return The method, null if not found
+     */
     public static Method getCommandMethod(String className, ClassLoader classLoader) {
         Class<?> targetClass;
         try {
@@ -94,6 +97,42 @@ public class Utils {
 
     }
 
+    /**
+     * Gets a runCommand method object from the specified class. Make sure hasCommandMethod is checked!
+     * @param targetClass class to check
+     * @return method object, null if not found
+     */
+    public static Method getCommandMethod(Class<?> targetClass) {
+        Method m;
+        try {
+            m = targetClass.getMethod("runCommand", CommandSender.class, Command.class, String.class, String[].class);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return m;
+    }
+
+    /**
+     * Note to self: This does not work if the method is protected!!
+     * Takes a class object and checks to see if there is a static runCommand(CommandSender sender, Command command, String label, String[] args) method.
+     * @param targetClass Any class
+     * @return Whether it contains the method
+     */
+    public static boolean hasCommandMethod(Class<?> targetClass) {
+        try {
+            targetClass.getMethod("runCommand", CommandSender.class, Command.class, String.class, String[].class);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
+
+    /**
+     * Removes the first argument from an argument array.
+     * @param args arguments
+     * @return Arguments array with the first argument removed
+     */
     public static String[] removeFirstArg(String[] args) {
         ArrayList<String> argsList = new ArrayList<>(Arrays.asList(args));
         argsList.remove(0);

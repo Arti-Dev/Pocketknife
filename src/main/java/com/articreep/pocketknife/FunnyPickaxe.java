@@ -9,7 +9,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,7 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Arrays;
 
 public class FunnyPickaxe implements Listener {
-    protected static boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
+    public static boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             int amount = 1;
             if (args.length >= 1) {

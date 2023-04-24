@@ -9,7 +9,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -23,7 +22,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class GenesisExplode {
     // TODO add a config file disabling this
-    protected static boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
+    public static boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         Location l;
         World w = Bukkit.getWorld("Genesis");
         if (w == null) {
