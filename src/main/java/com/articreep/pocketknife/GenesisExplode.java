@@ -12,6 +12,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -24,13 +25,14 @@ public class GenesisExplode implements PocketknifeCommand {
     // TODO add a config file disabling this
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
-        Location l;
-        World w = Bukkit.getWorld("Genesis");
-        if (w == null) {
-            sender.sendMessage(ChatColor.RED + "Genesis world not found.");
+        if (!(sender instanceof Player player)) return false;
+
+        World w = player.getWorld();
+        if (!w.getName().equals("Genesis")) {
+            sender.sendMessage(ChatColor.RED + "Please navigate to the \"Genesis\" world if it exists.");
             return true;
         }
-        l = new Location(w, 0, 45, 0);
+        Location l = new Location(w, 0, 45, 0);
 
         sender.sendMessage("You may want to rollback the " + ChatColor.RED + "Genesis" + ChatColor.RESET + " world after this explosion!");
         TextComponent msg = new TextComponent(ChatColor.YELLOW + "Maybe run /co rollback t:30s r:100?");
