@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Utils {
     /**
@@ -139,6 +140,19 @@ public class Utils {
         // TODO I don't know what I'm doing here
         String[] strings = new String[0];
         return argsList.toArray(strings);
+    }
+
+    public static boolean containsIgnoreCase(List<String> list, String check) {
+        for (String str : list) {
+            if (str.equalsIgnoreCase(check)) return true;
+        }
+        return false;
+    }
+
+    public static void removeAllIgnoreCase(List<String> list, List<String> remove) {
+        for (String str : remove) {
+            if (containsIgnoreCase(list, str)) list.remove(str);
+        }
     }
 
 }

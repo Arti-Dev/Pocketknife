@@ -70,7 +70,7 @@ public class FunnyPickaxe implements Listener, PocketknifeCommand {
                     event.setCancelled(true);
                     // Send the JSON chat message
                     TextComponent component = new TextComponent(ChatColor.GOLD + "Haha, funny pickaxe!");
-                    component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/funnypickaxe"));
+                    component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pocketknife funnypickaxe"));
                     component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click for one!")));
                     p.spigot().sendMessage(component);
                 }

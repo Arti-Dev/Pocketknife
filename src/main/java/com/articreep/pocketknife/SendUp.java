@@ -6,9 +6,13 @@ import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class SendUp implements PocketknifeCommand {
 
@@ -43,8 +47,23 @@ public class SendUp implements PocketknifeCommand {
 
     @Override
     public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        // todo ehh we can tabcomplete laterrrr
-        return null;
+        final List<String> onlinePlayerNames = new ArrayList<>();
+        List<String> specifiedPlayerNames;
+        final List<String> completions = new ArrayList<>();
+
+        if (args.length >= 1) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                onlinePlayerNames.add(player.getName());
+            }
+
+            specifiedPlayerNames = Arrays.stream(args).toList();
+
+            Utils.removeAllIgnoreCase(onlinePlayerNames, specifiedPlayerNames);
+
+            StringUtil.copyPartialMatches(args[args.length - 1], onlinePlayerNames, completions);
+        }
+
+        return completions;
     }
 
 }
