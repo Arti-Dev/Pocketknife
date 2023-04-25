@@ -20,6 +20,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class FunnyPickaxe implements Listener, PocketknifeCommand {
     @Override
@@ -47,6 +48,11 @@ public class FunnyPickaxe implements Listener, PocketknifeCommand {
             Bukkit.getLogger().info("You're not a player.");
         }
         return true;
+    }
+
+    @Override
+    public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        return null;
     }
 
     @EventHandler

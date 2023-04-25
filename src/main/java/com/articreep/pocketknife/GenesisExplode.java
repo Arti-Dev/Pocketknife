@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -75,6 +76,11 @@ public class GenesisExplode implements PocketknifeCommand {
             }
         }.runTaskTimer(Pocketknife.getInstance(), 110, 1);
         return true;
+    }
+
+    @Override
+    public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        return null;
     }
 
     private static Vector randomVec() {

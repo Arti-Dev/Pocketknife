@@ -130,11 +130,8 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
             return true;
         }
 
-        PocketknifeCommand pocketCommand = null;
-        // Check args[0] against commandClassNameMap.keySet()
-        for (String str : commandClassNameMap.keySet()) {
-            if (str.equalsIgnoreCase(args[0])) pocketCommand = commandClassNameMap.get(str);
-        }
+        PocketknifeCommand pocketCommand = getPocketKnifeCommand(args[0]);
+
         if (pocketCommand == null) {
             sender.sendMessage(ChatColor.RED + "Couldn't find that feature.");
             return true;
@@ -148,15 +145,35 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         return true;
     }
 
+    private PocketknifeCommand getPocketKnifeCommand(String query) {
+        // Check against commandClassNameMap.keySet()
+        for (String str : commandClassNameMap.keySet()) {
+            if (str.equalsIgnoreCase(query)) return commandClassNameMap.get(str);
+        }
+        return null;
+    }
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        final ArrayList<String> strings = new ArrayList<>();
-        final List<String> completions = new ArrayList<>();
+        ArrayList<String> strings = new ArrayList<>();
+        List<String> completions = new ArrayList<>();
         if (args.length == 1) {
             strings.addAll(commandClassNameMap.keySet());
             StringUtil.copyPartialMatches(args[0], strings, completions);
         }
-        // TODO Add a way to grab tabcompletions from other classes too
+
+        // Up to another class to tabcomplete
+        if (args.length > 1) {
+            PocketknifeCommand pocketCommand = getPocketKnifeCommand(args[0]);
+
+            if (pocketCommand == null) {
+                return completions;
+            } else {
+                completions = pocketCommand.tabComplete(sender, command, alias, Utils.removeFirstArg(args));
+                if (completions == null) return new ArrayList<>();
+            }
+        }
+
         return completions;
     }
 

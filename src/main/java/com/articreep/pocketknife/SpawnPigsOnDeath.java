@@ -11,6 +11,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.List;
+
 public class SpawnPigsOnDeath implements Listener, PocketknifeCommand {
 	@Override
 	public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -21,7 +23,12 @@ public class SpawnPigsOnDeath implements Listener, PocketknifeCommand {
 		return false;
 	}
 
-    @EventHandler
+	@Override
+	public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
+		return null;
+	}
+
+	@EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
     	Player p = event.getEntity();
     	World w = p.getWorld();
