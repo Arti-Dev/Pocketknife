@@ -29,7 +29,7 @@ public class SendUp implements PocketknifeCommand {
                     }
                     player.setVelocity(new Vector(0, 5, 0));
                     player.getWorld().strikeLightningEffect(player.getLocation());
-                    player.getWorld().playSound(player.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_IMPACT, 1, 1);
+                    player.getWorld().playSound(player.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 10, 1);
                     player.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "Up you go!");
 
                 }
