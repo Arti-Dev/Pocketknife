@@ -142,6 +142,13 @@ public class Utils {
         return argsList.toArray(strings);
     }
 
+    /**
+     * Takes a list of type String and a string.
+     * Checks if the string is in the list, regardless of case.
+     * @param list List of strings
+     * @param check Element to check against List
+     * @return Whether the element is in the list, regardless of case
+     */
     public static boolean containsIgnoreCase(List<String> list, String check) {
         for (String str : list) {
             if (str.equalsIgnoreCase(check)) return true;
@@ -149,6 +156,11 @@ public class Utils {
         return false;
     }
 
+    /**
+     * Removes all matches from the first argument list that are in the second list.
+     * @param list First list (items will be removed from this list)
+     * @param remove Second list (items will be unchanged)
+     */
     public static void removeAllIgnoreCase(List<String> list, List<String> remove) {
         for (String str : remove) {
             if (containsIgnoreCase(list, str)) list.remove(str);

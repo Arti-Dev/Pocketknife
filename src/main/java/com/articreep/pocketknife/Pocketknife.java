@@ -28,16 +28,16 @@ import java.util.List;
 public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompleter {
     private static Pocketknife instance;
     private static Reflections reflections;
-    private static final HashMap<String, PocketknifeCommand> commandClassNameMap = new HashMap<>();
+    private static final HashMap<String, PocketknifeSubcommand> commandClassNameMap = new HashMap<>();
     public void onEnable() {
         instance = this;
 
         initReflections();
 
         /* The plugin checks every class in this package and creates an instance of it.
-        Then, it checks to see if these are subclasses of Listener, PocketknifeCommand, or both
+        Then, it checks to see if these are subclasses of Listener, PocketknifeSubcommand, or both
         It is then registered in the respective location.
-        Therefore, all that needs to be done in each individual class is to implement Listener or PocketknifeCommand and that's it! */
+        Therefore, all that needs to be done in each individual class is to implement Listener or PocketknifeSubcommand and that's it! */
         for (Class<?> clazz : reflections.getSubTypesOf(Object.class)) {
             if (clazz == this.getClass()) continue;
             if (!registerClass(clazz)) {
@@ -69,7 +69,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
 
     /**
      * Creates an instance of the target class.
-     * Then, registers event methods to Bukkit or registers the command method to my HashMap if it implements Listener or PocketknifeCommand, respectively.
+     * Then, registers event methods to Bukkit or registers the command method to my HashMap if it implements Listener or PocketknifeSubcommand, respectively.
      * If none match returns false
      * @param targetClass The target class
      * @return Whether anything was registered
@@ -98,9 +98,9 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         }
 
         boolean registered = false;
-        if (classObj instanceof PocketknifeCommand) {
+        if (classObj instanceof PocketknifeSubcommand) {
             // Register command into my hashmap
-            commandClassNameMap.put(targetClass.getSimpleName(), (PocketknifeCommand) classObj);
+            commandClassNameMap.put(targetClass.getSimpleName(), (PocketknifeSubcommand) classObj);
             registered = true;
         }
         if (classObj instanceof Listener) {
@@ -130,7 +130,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
             return true;
         }
 
-        PocketknifeCommand pocketCommand = getPocketKnifeCommand(args[0]);
+        PocketknifeSubcommand pocketCommand = getPocketKnifeCommand(args[0]);
 
         if (pocketCommand == null) {
             sender.sendMessage(ChatColor.RED + "Couldn't find that feature.");
@@ -145,7 +145,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         return true;
     }
 
-    private PocketknifeCommand getPocketKnifeCommand(String query) {
+    private PocketknifeSubcommand getPocketKnifeCommand(String query) {
         // Check against commandClassNameMap.keySet()
         for (String str : commandClassNameMap.keySet()) {
             if (str.equalsIgnoreCase(query)) return commandClassNameMap.get(str);
@@ -164,7 +164,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
 
         // Up to another class to tabcomplete
         if (args.length > 1) {
-            PocketknifeCommand pocketCommand = getPocketKnifeCommand(args[0]);
+            PocketknifeSubcommand pocketCommand = getPocketKnifeCommand(args[0]);
 
             if (pocketCommand == null) {
                 return completions;

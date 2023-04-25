@@ -15,7 +15,7 @@ import org.bukkit.util.Vector;
 
 import java.util.List;
 
-public class Instaboom implements Listener, PocketknifeCommand {
+public class Instaboom implements Listener, PocketknifeSubcommand {
 
     @EventHandler
     public void onInstaboom(BlockPlaceEvent event) {

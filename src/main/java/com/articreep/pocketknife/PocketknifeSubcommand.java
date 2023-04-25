@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * This exists purely to differentiate from CommandExecutor.
  */
-public interface PocketknifeCommand {
+public interface PocketknifeSubcommand {
     boolean runCommand(CommandSender sender, Command command, String label, String[] args);
     List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args);
 

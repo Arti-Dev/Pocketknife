@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * This was used for the Pit Day 2023 video! <a href="https://www.youtube.com/watch?v=QZCXWbQvQ8g">...</a>
  */
-public class Starstriker implements PocketknifeCommand {
+public class Starstriker implements PocketknifeSubcommand {
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) return false;

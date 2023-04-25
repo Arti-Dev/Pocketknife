@@ -13,7 +13,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 
-public class SpawnPigsOnDeath implements Listener, PocketknifeCommand {
+public class SpawnPigsOnDeath implements Listener, PocketknifeSubcommand {
 	@Override
 	public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (sender instanceof Player) {

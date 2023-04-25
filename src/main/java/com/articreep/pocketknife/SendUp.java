@@ -12,9 +12,8 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
-public class SendUp implements PocketknifeCommand {
+public class SendUp implements PocketknifeSubcommand {
 
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {

@@ -22,7 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Arrays;
 import java.util.List;
 
-public class FunnyPickaxe implements Listener, PocketknifeCommand {
+public class FunnyPickaxe implements Listener, PocketknifeSubcommand {
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {

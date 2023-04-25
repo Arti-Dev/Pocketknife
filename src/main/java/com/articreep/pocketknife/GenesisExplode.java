@@ -4,7 +4,6 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -22,7 +21,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * This was used for the Pit Day 2022 video! <a href="https://www.youtube.com/watch?v=JkHlECk1_Ao">...</a>
  */
-public class GenesisExplode implements PocketknifeCommand {
+public class GenesisExplode implements PocketknifeSubcommand {
     // TODO add a config file disabling this
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
