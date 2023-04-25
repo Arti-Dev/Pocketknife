@@ -20,9 +20,10 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * This was used for the Pit Day 2022 video! <a href="https://www.youtube.com/watch?v=JkHlECk1_Ao">...</a>
  */
-public class GenesisExplode {
+public class GenesisExplode implements PocketknifeCommand {
     // TODO add a config file disabling this
-    public static boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
+    @Override
+    public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         Location l;
         World w = Bukkit.getWorld("Genesis");
         if (w == null) {

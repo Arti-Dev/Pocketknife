@@ -1,6 +1,6 @@
 name: Pocketknife
 main: com.articreep.pocketknife.Pocketknife
-version: 1.3
+version: 1.4
 author: Arti_Creep
 api-version: 1.19
 commands:

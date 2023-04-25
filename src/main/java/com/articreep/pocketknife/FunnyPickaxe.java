@@ -21,8 +21,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 
-public class FunnyPickaxe implements Listener {
-    public static boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
+public class FunnyPickaxe implements Listener, PocketknifeCommand {
+    @Override
+    public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             int amount = 1;
             if (args.length >= 1) {
