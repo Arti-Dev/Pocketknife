@@ -29,7 +29,7 @@ public class GenesisExplode implements PocketknifeCommand {
         if (!(sender instanceof Player player)) return false;
 
         World w = player.getWorld();
-        if (!w.getName().equals("Genesis")) {
+        if (!w.getName().equalsIgnoreCase("Genesis")) {
             sender.sendMessage(ChatColor.RED + "Please navigate to the \"Genesis\" world if it exists.");
             return true;
         }
