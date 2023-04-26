@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,8 +15,15 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.List;
 
 public class SpawnPigsOnDeath implements Listener, PocketknifeSubcommand {
+	boolean enabled;
+	Pocketknife plugin;
+	public SpawnPigsOnDeath() {
+		plugin = Pocketknife.getInstance();
+		enabled = plugin.getConfig().getBoolean("spawnpigsondeath");
+	}
 	@Override
 	public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
+		// TODO Add toggle
 		if (sender instanceof Player) {
 			sender.sendMessage("All this feature does is spawn ten pigs when someone dies.");
 			return true;
@@ -30,6 +38,7 @@ public class SpawnPigsOnDeath implements Listener, PocketknifeSubcommand {
 
 	@EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
+		if (!enabled) return;
     	Player p = event.getEntity();
     	World w = p.getWorld();
     	for (int i = 0; i<10; i++) {

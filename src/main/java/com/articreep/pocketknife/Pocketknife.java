@@ -29,9 +29,11 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
     private static Pocketknife instance;
     private static Reflections reflections;
     private static final HashMap<String, PocketknifeSubcommand> commandClassNameMap = new HashMap<>();
+    protected static final HashMap<String, Boolean> featureStatusMap = new HashMap<>();
     public void onEnable() {
         instance = this;
 
+        saveDefaultConfig();
         initReflections();
 
         /* The plugin checks every class in this package and creates an instance of it.
@@ -78,15 +80,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         // Will be garbage collected if not used
         Object classObj;
 
-        // Only load classes that have a constructor that takes no arguments.
-        // Anything that takes more - let's manually register them.
-        Constructor<?>[] ctors = targetClass.getDeclaredConstructors();
-        Constructor<?> ctor = null;
-        for (Constructor<?> constructor : ctors) {
-            ctor = constructor;
-            if (ctor.getGenericParameterTypes().length == 0)
-                break;
-        }
+        Constructor<?> ctor = getConstructor(targetClass);
 
         // Obligatory null check
         if (ctor == null) return false;
@@ -109,6 +103,26 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
             registered = true;
         }
         return registered;
+    }
+
+    /**
+     * Looks for one of two constructors: a default constructor or one that has a single parameter (FileConfiguration).
+     * The constructor with the single parameter takes priority.
+     * If none found, return null
+     * @param targetClass Any class
+     * @return The desired constructor, null if not found
+     */
+    private Constructor<?> getConstructor(Class<?> targetClass) {
+        // Only load classes that have a constructor that takes no arguments.
+        // Anything that takes more - let's manually register them.
+        Constructor<?>[] ctors = targetClass.getDeclaredConstructors();
+        Constructor<?> ctor = null;
+        for (Constructor<?> constructor : ctors) {
+            ctor = constructor;
+            if (ctor.getGenericParameterTypes().length == 0)
+                break;
+        }
+        return ctor;
     }
 
     public void onDisable() {
