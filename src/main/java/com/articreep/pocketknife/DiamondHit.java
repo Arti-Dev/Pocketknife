@@ -26,6 +26,7 @@ public class DiamondHit extends PocketknifeSubcommand implements Listener, Pocke
 
     @EventHandler
     public void onDiamondHit(EntityDamageByEntityEvent event) {
+        if (event.isCancelled()) return;
         if (!enabled) return;
 
         if (!(event.getDamager() instanceof Player damager && event.getEntity() instanceof Player victim)) return;
@@ -54,6 +55,7 @@ public class DiamondHit extends PocketknifeSubcommand implements Listener, Pocke
 
     @EventHandler
     public void onXPPickup(EntityPickupItemEvent event) {
+        if (event.isCancelled()) return;
         if (!enabled) return;
 
         if (!(event.getEntity() instanceof Player player)) return;
