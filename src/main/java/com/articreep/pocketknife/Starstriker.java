@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * This was used for the Pit Day 2023 video! <a href="https://www.youtube.com/watch?v=QZCXWbQvQ8g">...</a>
  */
-public class Starstriker implements PocketknifeSubcommand {
+public class Starstriker extends PocketknifeSubcommand {
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) return false;
@@ -32,7 +32,7 @@ public class Starstriker implements PocketknifeSubcommand {
         new BukkitRunnable() {
             int i = 0;
             int diff = 2;
-            LinkedList<Block> list = new LinkedList<>();
+            final LinkedList<Block> list = new LinkedList<>();
 
             @Override
             public void run() {
@@ -64,5 +64,15 @@ public class Starstriker implements PocketknifeSubcommand {
     @Override
     public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
         return null;
+    }
+
+    @Override
+    String getSyntax() {
+        return "Usage: /pocketknife Starstriker";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Special effect used in the Pit Day 2023 video.";
     }
 }

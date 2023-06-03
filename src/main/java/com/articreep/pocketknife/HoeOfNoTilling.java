@@ -16,7 +16,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Arrays;
 import java.util.List;
 
-public class HoeOfNoTilling implements PocketknifeSubcommand, Listener {
+public class HoeOfNoTilling extends PocketknifeSubcommand implements Listener {
 
 	@Override
 	public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -31,6 +31,11 @@ public class HoeOfNoTilling implements PocketknifeSubcommand, Listener {
 	@Override
 	public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
 		return null;
+	}
+
+	@Override
+	String getSyntax() {
+		return "Usage: /pocketknife HoeOfNoTilling";
 	}
 
 	@EventHandler
@@ -71,5 +76,10 @@ public class HoeOfNoTilling implements PocketknifeSubcommand, Listener {
         item.setItemMeta(meta);
 
         return item;
+	}
+
+	@Override
+	public String getDescription() {
+		return "A hoe that untills farmland.";
 	}
 }

@@ -22,7 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Arrays;
 import java.util.List;
 
-public class FunnyPickaxe implements Listener, PocketknifeSubcommand {
+public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
@@ -53,6 +53,11 @@ public class FunnyPickaxe implements Listener, PocketknifeSubcommand {
     @Override
     public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
         return null;
+    }
+
+    @Override
+    String getSyntax() {
+        return "Usage: /pocketknife FunnyPickaxe <amount>";
     }
 
     @EventHandler
@@ -87,5 +92,10 @@ public class FunnyPickaxe implements Listener, PocketknifeSubcommand {
         item.setItemMeta(meta);
         item.setAmount(quantity);
         return item;
+    }
+
+    @Override
+    public String getDescription() {
+        return "Meant to be a joke";
     }
 }

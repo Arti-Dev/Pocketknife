@@ -10,11 +10,11 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ForceRespawn implements PocketknifeSubcommand {
+public class ForceRespawn extends PocketknifeSubcommand {
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(ChatColor.RED + "Usage: /pocketknife ForceRespawn <player>");
+            sendSyntaxMessage(sender);
             return true;
         }
         Player target = Bukkit.getPlayer(args[0]);
@@ -38,5 +38,15 @@ public class ForceRespawn implements PocketknifeSubcommand {
             StringUtil.copyPartialMatches(args[0], strings, completions);
         }
         return completions;
+    }
+
+    @Override
+    String getSyntax() {
+        return "Usage: /pocketknife ForceRespawn <player>";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Forcefully respawns any player that is on the \"You Died\" screen.";
     }
 }

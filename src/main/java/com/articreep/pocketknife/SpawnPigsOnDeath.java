@@ -1,6 +1,7 @@
 package com.articreep.pocketknife;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -11,10 +12,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.StringUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class SpawnPigsOnDeath implements Listener, PocketknifeSubcommand {
+public class SpawnPigsOnDeath extends PocketknifeSubcommand implements Listener, PocketknifeConfigurable {
 	boolean enabled;
 	Pocketknife plugin;
 	public SpawnPigsOnDeath() {
@@ -23,9 +26,23 @@ public class SpawnPigsOnDeath implements Listener, PocketknifeSubcommand {
 	}
 	@Override
 	public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
-		// TODO Add toggle
 		if (sender instanceof Player) {
-			sender.sendMessage("All this feature does is spawn ten pigs when someone dies.");
+			if (args.length == 0) {
+				sendDescriptionMessage(sender);
+				sendSyntaxMessage(sender);
+			} else {
+				if (args[0].equalsIgnoreCase("on")) {
+					enabled = true;
+					sender.sendMessage(ChatColor.GREEN + "SpawnPigsOnDeath toggled ON");
+				} else if (args[0].equalsIgnoreCase("off")) {
+					enabled = false;
+					sender.sendMessage(ChatColor.RED + "SpawnPigsOnDeath toggled OFF");
+				} else {
+					sendSyntaxMessage(sender);
+				}
+				plugin.getConfig().set("spawnpigsondeath", enabled);
+				plugin.saveConfig();
+			}
 			return true;
 		}
 		return false;
@@ -33,7 +50,25 @@ public class SpawnPigsOnDeath implements Listener, PocketknifeSubcommand {
 
 	@Override
 	public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
-		return null;
+		List<String> completions = new ArrayList<>();
+		if (args.length == 1) {
+			ArrayList<String> strings = new ArrayList<>();
+			strings.add("on");
+			strings.add("off");
+			StringUtil.copyPartialMatches(args[0], strings, completions);
+		}
+		return completions;
+	}
+
+	@Override
+	String getSyntax() {
+		return "Usage: /pocketknife SpawnPigsOnDeath <on/off>";
+	}
+
+	@Override
+	public void loadConfig(FileConfiguration config) {
+		enabled = config.getBoolean("spawnpigsondeath");
+		config.set("spawnpigsondeath", enabled);
 	}
 
 	@EventHandler
@@ -52,4 +87,9 @@ public class SpawnPigsOnDeath implements Listener, PocketknifeSubcommand {
 			}
         }.runTaskLater(Pocketknife.getInstance(), 1);
     }
+
+	@Override
+	public String getDescription() {
+		return "All this feature does is spawn ten pigs when someone dies.";
+	}
 }

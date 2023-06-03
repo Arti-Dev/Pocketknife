@@ -15,7 +15,7 @@ import org.bukkit.util.Vector;
 
 import java.util.List;
 
-public class Instaboom implements Listener, PocketknifeSubcommand {
+public class Instaboom extends PocketknifeSubcommand implements Listener {
 
     @EventHandler
     public void onInstaboom(BlockPlaceEvent event) {
@@ -68,6 +68,11 @@ public class Instaboom implements Listener, PocketknifeSubcommand {
         return null;
     }
 
+    @Override
+    String getSyntax() {
+        return "Usage: /pocketknife Instaboom";
+    }
+
     private static ItemStack createInstaboom() {
         ItemStack tnt = new ItemStack(Material.TNT);
         ItemMeta meta = tnt.getItemMeta();
@@ -75,5 +80,10 @@ public class Instaboom implements Listener, PocketknifeSubcommand {
         tnt.setItemMeta(meta);
         tnt.addUnsafeEnchantment(Enchantment.ARROW_INFINITE, 1);
         return tnt;
+    }
+
+    @Override
+    public String getDescription() {
+        return "Recreation of Instaboom from the Hypixel Pit";
     }
 }

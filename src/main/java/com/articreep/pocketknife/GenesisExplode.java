@@ -9,6 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -21,11 +22,16 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * This was used for the Pit Day 2022 video! <a href="https://www.youtube.com/watch?v=JkHlECk1_Ao">...</a>
  */
-public class GenesisExplode implements PocketknifeSubcommand {
-    // TODO add a config file disabling this
+public class GenesisExplode extends PocketknifeSubcommand implements PocketknifeConfigurable {
+    private boolean enabled = false;
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) return false;
+
+        if (!enabled) {
+            player.sendMessage(ChatColor.RED + "This feature is currently disabled!");
+            return true;
+        }
 
         World w = player.getWorld();
         if (!w.getName().equalsIgnoreCase("Genesis")) {
@@ -82,8 +88,23 @@ public class GenesisExplode implements PocketknifeSubcommand {
         return null;
     }
 
+    @Override
+    String getSyntax() {
+        return "Usage: /pocketknife GenesisExplode";
+    }
+
+    @Override
+    public void loadConfig(FileConfiguration config) {
+        enabled = config.getBoolean("genesisexplode");
+    }
+
     private static Vector randomVec() {
         return new Vector(ThreadLocalRandom.current().nextDouble(-3, 3), Math.random() * 3,
                 ThreadLocalRandom.current().nextDouble(-3, 3));
+    }
+
+    @Override
+    public String getDescription() {
+        return "Explodes the Genesis map. Used for the Pit Day 2022 video.";
     }
 }

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SendUp implements PocketknifeSubcommand {
+public class SendUp extends PocketknifeSubcommand {
 
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -24,8 +24,8 @@ public class SendUp implements PocketknifeSubcommand {
                 ((Player) sender).getWorld().strikeLightning(((Player) sender).getLocation());
             } else {
                 // This takes multiple arguments and players!
-                for (int i = 0; i < args.length; i++) {
-                    Player player = Bukkit.getPlayer(args[i]);
+                for (String arg : args) {
+                    Player player = Bukkit.getPlayer(arg);
                     if (player == null) {
                         sender.sendMessage(ChatColor.RED + "You sent an invalid player!");
                         continue;
@@ -65,4 +65,13 @@ public class SendUp implements PocketknifeSubcommand {
         return completions;
     }
 
+    @Override
+    String getSyntax() {
+        return "Usage: /pocketknife SendUp <player> <player>...";
+    }
+
+    @Override
+    public String getDescription() {
+        return "Launches the targeted player into the sky.";
+    }
 }

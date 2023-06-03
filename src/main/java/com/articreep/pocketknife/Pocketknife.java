@@ -20,16 +20,13 @@ import org.reflections.util.FilterBuilder;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompleter {
     private static Pocketknife instance;
     private static Reflections reflections;
     private static final HashMap<String, PocketknifeSubcommand> commandClassNameMap = new HashMap<>();
-    protected static final HashMap<String, Boolean> featureStatusMap = new HashMap<>();
+    private static final HashSet<PocketknifeConfigurable> configurableClasses = new HashSet<>();
     public void onEnable() {
         instance = this;
 
@@ -46,6 +43,8 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
                 Bukkit.getConsoleSender().sendMessage(clazz.getName() + " had nothing to register!");
             }
         }
+
+        loadConfig();
 
         // /pocketknife is the umbrella command for all features of this plugin.
         getCommand("pocketknife").setExecutor(this);
@@ -70,6 +69,15 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
     }
 
     /**
+     * Load this AFTER registering everything!
+     */
+    private void loadConfig() {
+        for (PocketknifeConfigurable clazz : configurableClasses) {
+            clazz.loadConfig(getConfig());
+        }
+    }
+
+    /**
      * Creates an instance of the target class.
      * Then, registers event methods to Bukkit or registers the command method to my HashMap if it implements Listener or PocketknifeSubcommand, respectively.
      * If none match returns false
@@ -85,21 +93,30 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         // Obligatory null check
         if (ctor == null) return false;
 
+        // TODO Not sure if I should be using try-catch here
         try {
             classObj = ctor.newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            return false;
         }
 
         boolean registered = false;
         if (classObj instanceof PocketknifeSubcommand) {
             // Register command into my hashmap
             commandClassNameMap.put(targetClass.getSimpleName(), (PocketknifeSubcommand) classObj);
+            Bukkit.getConsoleSender().sendMessage("Registered command from " + targetClass.getSimpleName());
             registered = true;
         }
         if (classObj instanceof Listener) {
             // Register listener
             getServer().getPluginManager().registerEvents((Listener) classObj, this);
+            Bukkit.getConsoleSender().sendMessage("Registered listener from " + targetClass.getSimpleName());
+            registered = true;
+        }
+        if (classObj instanceof PocketknifeConfigurable) {
+            // Add instance to our set
+            configurableClasses.add((PocketknifeConfigurable) classObj);
+            Bukkit.getConsoleSender().sendMessage("Registered configuration from " + targetClass.getSimpleName());
             registered = true;
         }
         return registered;
@@ -144,6 +161,16 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
             return true;
         }
 
+        // Special arguments
+
+        // Reload
+        if (args[0].equalsIgnoreCase("reload")) {
+            reloadConfig();
+            loadConfig();
+            sender.sendMessage(ChatColor.GREEN + "Configuration reloaded!");
+            return true;
+        }
+
         PocketknifeSubcommand pocketCommand = getPocketKnifeCommand(args[0]);
 
         if (pocketCommand == null) {
@@ -168,11 +195,11 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        ArrayList<String> strings = new ArrayList<>();
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
-            strings.addAll(commandClassNameMap.keySet());
+            ArrayList<String> strings = new ArrayList<>(commandClassNameMap.keySet());
+            strings.add("reload");
             StringUtil.copyPartialMatches(args[0], strings, completions);
         }
 

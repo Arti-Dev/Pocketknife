@@ -3,6 +3,9 @@ package com.articreep.pocketknife;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,19 +13,21 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.StringUtil;
 import org.bukkit.util.Vector;
 
-import java.util.Collections;
-import java.util.Set;
-import java.util.WeakHashMap;
+import java.util.*;
 
-public class DiamondHit implements Listener {
+public class DiamondHit extends PocketknifeSubcommand implements Listener, PocketknifeConfigurable {
 
     // WeakHashMaps automatically remove garbage-collected members
     private static final Set<Item> droppedXPSet = Collections.newSetFromMap(new WeakHashMap<>());
+    private boolean enabled = false;
 
     @EventHandler
     public void onDiamondHit(EntityDamageByEntityEvent event) {
+        if (!enabled) return;
+
         if (!(event.getDamager() instanceof Player damager && event.getEntity() instanceof Player victim)) return;
 
         ItemStack[] items = victim.getEquipment().getArmorContents();
@@ -49,6 +54,8 @@ public class DiamondHit implements Listener {
 
     @EventHandler
     public void onXPPickup(EntityPickupItemEvent event) {
+        if (!enabled) return;
+
         if (!(event.getEntity() instanceof Player player)) return;
         if (droppedXPSet.contains(event.getItem())) {
             event.setCancelled(true);
@@ -57,5 +64,56 @@ public class DiamondHit implements Listener {
             player.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "XP!" + ChatColor.RESET + "" + ChatColor.AQUA + " +30 XP " + ChatColor.GRAY + "from opponent armor piece");
             player.playSound(player, Sound.ENTITY_ARROW_HIT_PLAYER, 1, 1);
         }
+    }
+
+    @Override
+    public void loadConfig(FileConfiguration config) {
+        enabled = config.getBoolean("diamondhit");
+    }
+
+    @Override
+    public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (sender instanceof Player) {
+            if (args.length == 0) {
+                sendDescriptionMessage(sender);
+                sendSyntaxMessage(sender);
+            } else {
+                if (args[0].equalsIgnoreCase("on")) {
+                    enabled = true;
+                    sender.sendMessage(ChatColor.GREEN + "DiamondHit toggled ON");
+                } else if (args[0].equalsIgnoreCase("off")) {
+                    enabled = false;
+                    sender.sendMessage(ChatColor.RED + "DiamondHit toggled OFF");
+                } else {
+                    sendSyntaxMessage(sender);
+                }
+                Pocketknife.getInstance().getConfig().set("diamondhit", enabled);
+                Pocketknife.getInstance().saveConfig();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        List<String> completions = new ArrayList<>();
+        if (args.length == 1) {
+            ArrayList<String> strings = new ArrayList<>();
+            strings.add("on");
+            strings.add("off");
+            StringUtil.copyPartialMatches(args[0], strings, completions);
+        }
+        return completions;
+    }
+
+    @Override
+    public String getSyntax() {
+        return "Usage: /pocketknife DiamondHit <on/off>";
+    }
+
+    @Override
+    public String getDescription() {
+        return ChatColor.AQUA + "Players drop XP when struck if wearing diamond armor.";
     }
 }
