@@ -85,6 +85,8 @@ public class PVPDebug extends PocketknifeSubcommand implements Listener {
             ticksSinceLastHit.put(victim, tickCount);
         }
         ticksSinceLastHit.put(victim, tickCount);
-        damager.sendMessage("Your victim now has " + victim.getNoDamageTicks() + " no damage ticks.");
+        damager.sendMessage("Your victim has " + victim.getNoDamageTicks() + " no damage ticks.");
+        Bukkit.getScheduler().runTaskLater(Pocketknife.getInstance(), () -> damager.sendMessage("Your victim has " + victim.getNoDamageTicks()
+                + " no damage ticks 1 tick later"), 1);
     }
 }
