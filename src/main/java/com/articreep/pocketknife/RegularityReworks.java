@@ -2,11 +2,10 @@ package com.articreep.pocketknife;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,10 +26,17 @@ public class RegularityReworks extends PocketknifeSubcommand implements Listener
      * This value is in seconds.
      */
     private double cooldown = 3;
+    /**
+     * This value is in seconds.
+     */
+    private double explodeTime = 2.5;
+    private final double multiplier = 0.75;
+    private double bonusKB = 0.8;
     private final static HashSet<Player> playersOnCooldown = new HashSet<>();
+    private final static HashSet<Player> playersEmpowered = new HashSet<>();
     @Override
     public String getDescription() {
-        return "Regularity reworks in practice, except on latest version. Choose an option (1-3) to obtain a pair of pants.";
+        return "Regularity reworks in practice, except on latest version. Choose an option (1-5) to obtain a pair of pants. All bonus damage is +75%.";
     }
 
     @EventHandler
@@ -58,14 +64,42 @@ public class RegularityReworks extends PocketknifeSubcommand implements Listener
 
         if (name.startsWith(ChatColor.DARK_RED + "Regularity Testing Pants")) {
             int option = Utils.parseInt(name.substring(name.length() - 1));
-            double bonusDamage = event.getFinalDamage() * 0.75;
 
             // Cooldown only
             if (option == 1) {
+                if (event.getFinalDamage() > 3) return;
                 if (!playersOnCooldown.contains(damager)) {
+                    double bonusDamage = event.getFinalDamage() * multiplier;
                     putOnCooldown(damager, cooldown);
-                    Bukkit.getScheduler().runTaskLater(Pocketknife.getInstance(), () -> applyExtraHit(damager, victim, bonusDamage), 2);
+                    Bukkit.getScheduler().runTaskLater(Pocketknife.getInstance(), () -> applyExtraHit(damager, victim, bonusDamage, 0.4), 2);
                 }
+            // Empower next hit for more
+            } else if (option == 2) {
+                if (event.getFinalDamage() > 3) return;
+                if (playersEmpowered.contains(damager)) {
+                    playersEmpowered.remove(damager);
+                    event.setDamage(event.getDamage() * 1 + multiplier);
+                    damager.sendMessage(ChatColor.DARK_RED + "" + ChatColor.BOLD + "REGS! " + ChatColor.RESET + "Your follow-up dealt " + event.getFinalDamage() + " damage!");
+                } else {
+                    playersEmpowered.add(damager);
+                    damager.getWorld().playSound(damager.getLocation(), Sound.ENTITY_GUARDIAN_HURT, 1, 1);
+                }
+            // Bombs
+            } else if (option == 3) {
+                if (event.getFinalDamage() > 3) return;
+                applyBomb(victim, explodeTime, false);
+            // Cooldown with extra knockback
+            } else if (option == 4) {
+                if (event.getFinalDamage() > 3) return;
+                if (!playersOnCooldown.contains(damager)) {
+                    double bonusDamage = event.getFinalDamage() * multiplier;
+                    putOnCooldown(damager, cooldown);
+                    Bukkit.getScheduler().runTaskLater(Pocketknife.getInstance(), () -> applyExtraHit(damager, victim, bonusDamage, bonusKB), 2);
+                }
+            // Bombs + victim control
+            } else if (option == 5) {
+                if (event.getFinalDamage() > 3) return;
+                applyBomb(victim, explodeTime, true);
             }
         }
     }
@@ -83,11 +117,39 @@ public class RegularityReworks extends PocketknifeSubcommand implements Listener
                 } else {
                     // Must be positive and actually a number
                     double value = Utils.parseDouble(args[1]);
-                    if (value > 0) {
+                    if (value >= 0) {
                         cooldown = value;
                         sender.sendMessage(ChatColor.GREEN + "Cooldown set to " + value + " seconds");
                     } else {
                         sender.sendMessage(ChatColor.RED + "Cooldown must be non-negative and actually a number");
+                    }
+                }
+            // explode time
+            } else if (args[0].equalsIgnoreCase("explodeTime")) {
+                if (args.length == 1) {
+                    sender.sendMessage(ChatColor.RED + "Current explode time is " + explodeTime + " seconds");
+                } else {
+                    // Must be positive and actually a number
+                    double value = Utils.parseDouble(args[1]);
+                    if (value >= 0) {
+                        explodeTime = value;
+                        sender.sendMessage(ChatColor.GREEN + "Explode time set to " + value + " seconds");
+                    } else {
+                        sender.sendMessage(ChatColor.RED + "Explode time must be non-negative and actually a number");
+                    }
+                }
+            // bonus KB for option 4
+            } else if (args[0].equalsIgnoreCase("bonusKB")) {
+                if (args.length == 1) {
+                    sender.sendMessage(ChatColor.RED + "Current bonus knockback (option 4) is " + bonusKB + ". 0.4 is normal.");
+                } else {
+                    // Must be positive and actually a number
+                    double value = Utils.parseDouble(args[1]);
+                    if (value >= 0) {
+                        bonusKB = value;
+                        sender.sendMessage(ChatColor.GREEN + "Bonus knockback (option 4) set to " + value);
+                    } else {
+                        sender.sendMessage(ChatColor.RED + "Bonus knockback must be non-negative and actually a number");
                     }
                 }
             // option select
@@ -99,8 +161,8 @@ public class RegularityReworks extends PocketknifeSubcommand implements Listener
                     sender.sendMessage(ChatColor.RED + "That's not an integer.");
                     return true;
                 }
-                if (option < 1 || option > 4) {
-                    sender.sendMessage(ChatColor.RED + "Available options are 1, 2, 3, or 4");
+                if (option < 1 || option > 5) {
+                    sender.sendMessage(ChatColor.RED + "Available options are 1, 2, 3, 4, 5");
                     return true;
                 }
                 Player player = (Player) sender;
@@ -120,7 +182,10 @@ public class RegularityReworks extends PocketknifeSubcommand implements Listener
             strings.add("2");
             strings.add("3");
             strings.add("4");
+            strings.add("5");
             strings.add("cooldown");
+            strings.add("explodeTime");
+            strings.add("bonusKB");
             StringUtil.copyPartialMatches(args[0], strings, completions);
         }
         return completions;
@@ -128,7 +193,7 @@ public class RegularityReworks extends PocketknifeSubcommand implements Listener
 
     @Override
     public String getSyntax() {
-        return "Usage: /pocketknife RegularityReworks <type/cooldown> <cooldown-amount>";
+        return "Usage: /pocketknife RegularityReworks <type/cooldown/explodeTime/bonusKB> <amount>";
     }
 
     private static void putOnCooldown(Player player, double cooldown) {
@@ -150,15 +215,53 @@ public class RegularityReworks extends PocketknifeSubcommand implements Listener
         }.runTaskTimer(Pocketknife.getInstance(), 0, 1);
     }
 
-    private void applyExtraHit(Player damager, Player victim, double damage) {
+    private void applyExtraHit(Player damager, Player victim, double damage, double knockback) {
         damager.sendMessage(ChatColor.DARK_RED + "" + ChatColor.BOLD + "REGS! " + ChatColor.RESET + "Your second hit dealt " + damage + " damage!");
         victim.setNoDamageTicks(0);
         // Horizontal
-        Vector kb = Utils.entitiesToHorizontalNormalizedVector(damager, victim, 0.4);
+        Vector kb = damager.getLocation().getDirection().normalize().multiply(knockback);
         // Vertical
-        kb.add(new Vector(0, 0.4, 0));
+        kb.setY(0.4);
         victim.setVelocity(kb);
         victim.damage(damage);
+    }
+
+    private void applyBomb(Player victim, double time, boolean allowControl) {
+        victim.getWorld().playSound(victim.getLocation(), Sound.ENTITY_PARROT_IMITATE_CREEPER, 1, 1);
+        new BukkitRunnable() {
+            double t = time * 20;
+            double rads = 0;
+            @Override
+            public void run() {
+                if (t <= 0) {
+                    // Whether player can influence the direction of the blast
+                    if (allowControl) {
+                        victim.setVelocity(victim.getLocation().getDirection().multiply(0.4).setY(0.4));
+                    } else {
+                        victim.setVelocity(Utils.randomKB(0.4));
+                    }
+                    victim.getWorld().playSound(victim.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1, 1);
+                    victim.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, victim.getLocation(), 1);
+                    Utils.trueDamage(victim, 1);
+                    launchNearby(victim);
+                    this.cancel();
+                }
+                Location loc = victim.getLocation().add(Math.sin(rads), 1, Math.cos(rads));
+                victim.getWorld().spawnParticle(Particle.REDSTONE, loc, 1, new Particle.DustOptions(Color.RED, 0.7F));
+                rads += 0.3;
+                t--;
+
+            }
+        }.runTaskTimer(Pocketknife.getInstance(), 0, 1);
+    }
+
+    private void launchNearby(Player victim) {
+        for (Entity entity : victim.getNearbyEntities(2, 2, 2)) {
+            if (entity instanceof Player player) {
+                player.setVelocity(Utils.entitiesToHorizontalNormalizedVector(victim, player, 0.4).setY(0.4));
+                Utils.trueDamage(player, 1);
+            }
+        }
     }
 
     private static ItemStack createPants(int option) {
@@ -195,6 +298,13 @@ public class RegularityReworks extends PocketknifeSubcommand implements Listener
                     ChatColor.RED + "strike again in " + ChatColor.YELLOW + "0.1s" + ChatColor.RED + " for 75% damage.",
                     ChatColor.RED + "The second hit deals more knockback.",
                     ChatColor.GRAY + "Cooldown varies, check /pocketknife RegularityReworks cooldown"));
+        } else if (option == 5) {
+            // Set the lore of the item
+            meta.setLore(Arrays.asList(ChatColor.GRAY + "Regularity but with explosives attached + victim control",
+                    "",
+                    ChatColor.RED + "Every hit attaches a bomb to your opponent, dealing knockback to",
+                    ChatColor.RED + "surrounding players and 1 very true damage to your opponent after 1.5s/2s/2.5s.",
+                    ChatColor.GRAY + "Victims are blasted in the direction they are looking."));
         } else {
             return null;
         }

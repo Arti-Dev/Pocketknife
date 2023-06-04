@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -205,4 +206,31 @@ public class Utils {
             return -1;
         }
     }
+
+    // Is this a good way of doing this? No clue.
+    public static void trueDamage(Player victim, Player damager, double amount) {
+        if (victim.getHealth() - amount <= 0) {
+            victim.damage(100000, damager);
+        } else {
+            victim.setHealth(victim.getHealth() - amount);
+            victim.damage(0.0000000000000000000000000000000000001);
+        }
+    }
+
+    public static void trueDamage(Player victim, double amount) {
+        if (victim.getHealth() - amount <= 0) {
+            victim.damage(100000);
+        } else {
+            victim.setHealth(victim.getHealth() - amount);
+            victim.damage(0.0000000000000000000000000000000000001);
+        }
+    }
+
+    public static Vector randomKB(double magnitude) {
+        double x = (Math.random() * 2) - 1;
+        double z = (Math.random() * 2) - 1;
+        return new Vector(x, 0, z).normalize().multiply(magnitude).setY(0.4);
+    }
+
+
 }
