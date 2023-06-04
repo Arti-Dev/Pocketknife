@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -20,7 +19,7 @@ public class PVPDebug extends PocketknifeSubcommand implements Listener {
     private boolean enabled = false;
     private int tickCount = 0;
     private BukkitTask task;
-    private HashMap<Player, Integer> ticksSinceLastHit = new HashMap<>();
+    private final HashMap<Player, Integer> ticksSinceLastHit = new HashMap<>();
 
     public PVPDebug() {
         plugin = Pocketknife.getInstance();

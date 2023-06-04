@@ -2,7 +2,6 @@ package com.articreep.pocketknife;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -46,6 +45,30 @@ public class Utils {
 
         // Generate vector, player - tnt = vector
         Vector vector = endLoc.toVector().subtract(startLoc.toVector());
+        vector.normalize();
+        vector.multiply(factor);
+
+        return vector;
+    }
+
+    /**
+     * Takes two entities and converts their locations to vectors and creates a resultant.
+     * The resultant is then stripped of its y-value.
+     * The vector is then normalized to length 1 and multiplied by the provided factor.
+     * @param start Starting entity, vector points away from this entity
+     * @param end Ending entity, vector points towards this entity
+     * @param factor Magnitude of the final vector
+     * @return The final vector
+     */
+    public static Vector entitiesToHorizontalNormalizedVector(Entity start, Entity end, double factor) {
+        if (start.getWorld() != end.getWorld()) throw new IllegalArgumentException("Entities' worlds do not match!");
+
+        Location startLoc = start.getLocation();
+        Location endLoc = end.getLocation();
+
+        // Generate vector, player - tnt = vector
+        Vector vector = endLoc.toVector().subtract(startLoc.toVector());
+        vector.setY(0);
         vector.normalize();
         vector.multiply(factor);
 
@@ -167,4 +190,19 @@ public class Utils {
         }
     }
 
+    public static double parseDouble(String s) {
+        try {
+            return Double.parseDouble(s);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    public static int parseInt(String s) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
 }
