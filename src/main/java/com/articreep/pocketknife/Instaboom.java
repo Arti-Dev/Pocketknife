@@ -14,6 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Instaboom extends PocketknifeSubcommand implements Listener {
 
@@ -28,11 +29,12 @@ public class Instaboom extends PocketknifeSubcommand implements Listener {
 
         Block b = event.getBlockPlaced();
         Player p = event.getPlayer();
+        ItemStack item = p.getInventory().getItemInMainHand();
         World w = p.getWorld();
         int factor = 3;
 
         if (b.getType() != Material.TNT) return;
-        if (!(p.getInventory().getItemInMainHand().isSimilar(createInstaboom()))) return;
+        if (!Objects.equals(Utils.getItemID(item), "INSTABOOM_TNT")) return;
         event.setCancelled(true);
 
         Location playerLoc = p.getLocation();
@@ -77,6 +79,7 @@ public class Instaboom extends PocketknifeSubcommand implements Listener {
         ItemStack tnt = new ItemStack(Material.TNT);
         ItemMeta meta = tnt.getItemMeta();
         meta.setDisplayName(ChatColor.AQUA + "Instaboom TNT");
+        Utils.setItemID(meta, "INSTABOOM_TNT");
         tnt.setItemMeta(meta);
         tnt.addUnsafeEnchantment(Enchantment.ARROW_INFINITE, 1);
         return tnt;

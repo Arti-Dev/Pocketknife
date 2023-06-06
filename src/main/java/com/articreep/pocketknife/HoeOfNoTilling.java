@@ -15,6 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class HoeOfNoTilling extends PocketknifeSubcommand implements Listener {
 
@@ -42,13 +43,11 @@ public class HoeOfNoTilling extends PocketknifeSubcommand implements Listener {
 	public void onDirtTill(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		ItemStack item = player.getInventory().getItemInMainHand();
-		ItemMeta itemmeta = item.getItemMeta();
-		if (item.getType().equals(Material.AIR)) return;
-		if (!itemmeta.hasDisplayName()) return;
-		if (itemmeta.getDisplayName().equals(ChatColor.GREEN + "Hoe of No Tilling")) {
+
+		if (Objects.equals(Utils.getItemID(item), "HOE_OF_NO_TILLING")) {
 			if (event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 				event.setCancelled(true);
-				if (event.getClickedBlock().getType().equals(Material.FARMLAND)) {
+				if (event.hasBlock() && event.getClickedBlock().getType().equals(Material.FARMLAND)) {
 					event.getClickedBlock().setType(Material.DIRT);
 					player.playSound(player.getLocation(), Sound.BLOCK_GRASS_BREAK, 0.5F, 0.5F);
 				}
@@ -65,14 +64,14 @@ public class HoeOfNoTilling extends PocketknifeSubcommand implements Listener {
 
         // Set the lore of the item
         meta.setLore(Arrays.asList(ChatColor.GRAY + "Untills farmland!", "",
-        		ChatColor.DARK_GRAY + "" + ChatColor.ITALIC + "Mathematically proven to", 
+        		ChatColor.DARK_GRAY + "" + ChatColor.ITALIC + "Mathematically proven to",
         		ChatColor.DARK_GRAY + "" + ChatColor.ITALIC + "be more efficient than",
         		ChatColor.DARK_GRAY + "" + ChatColor.ITALIC + "jumping on it!",
         		"",
         		ChatColor.DARK_GRAY + "This item can be reforged!",
         		ChatColor.GREEN + "" + ChatColor.BOLD + "UNCOMMON HOE"));
         
-
+		Utils.setItemID(meta, "HOE_OF_NO_TILLING");
         item.setItemMeta(meta);
 
         return item;

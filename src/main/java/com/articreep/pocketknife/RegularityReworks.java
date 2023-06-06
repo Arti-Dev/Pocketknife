@@ -54,16 +54,13 @@ public class RegularityReworks extends PocketknifeSubcommand implements Listener
         }
 
         // Read their pants.
-        // The conditions to make this work: If the name starts with "Regularity Testing Pants" and ends in the correct option.
 
         ItemStack pants = damager.getInventory().getLeggings();
-        if (pants == null || !pants.hasItemMeta()) return;
-        ItemMeta meta = pants.getItemMeta();
-        if (!meta.hasDisplayName()) return;
-        String name = pants.getItemMeta().getDisplayName();
+        String id = Utils.getItemID(pants);
+        if (id == null) return;
 
-        if (name.startsWith(ChatColor.DARK_RED + "Regularity Testing Pants")) {
-            int option = Utils.parseInt(name.substring(name.length() - 1));
+        if (id.startsWith("REGULARITY_")) {
+            int option = Utils.parseInt(id.substring(id.length() - 1));
 
             // Cooldown only
             if (option == 1) {
@@ -270,6 +267,7 @@ public class RegularityReworks extends PocketknifeSubcommand implements Listener
 
         // Set the name of the item
         meta.setDisplayName(ChatColor.DARK_RED + "Regularity Testing Pants - Option " + option);
+        Utils.setItemID(meta, "REGULARITY_" + option);
 
         if (option == 1) {
             // Set the lore of the item

@@ -2,11 +2,15 @@ package com.articreep.pocketknife;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
@@ -46,6 +50,7 @@ public class Utils {
 
         // Generate vector, player - tnt = vector
         Vector vector = endLoc.toVector().subtract(startLoc.toVector());
+        if (vector.lengthSquared() == 0) return vector;
         vector.normalize();
         vector.multiply(factor);
 
@@ -69,6 +74,7 @@ public class Utils {
 
         // Generate vector, player - tnt = vector
         Vector vector = endLoc.toVector().subtract(startLoc.toVector());
+        if (vector.lengthSquared() == 0) return vector;
         vector.setY(0);
         vector.normalize();
         vector.multiply(factor);
@@ -230,6 +236,44 @@ public class Utils {
         double x = (Math.random() * 2) - 1;
         double z = (Math.random() * 2) - 1;
         return new Vector(x, 0, z).normalize().multiply(magnitude).setY(0.4);
+    }
+
+    private static final NamespacedKey key = new NamespacedKey(Pocketknife.getInstance(), "ITEM_ID");
+    /**
+     * Adds an item ID to the PersistentDataContainer of the item.
+     * @param item Item to add an ID to
+     * @throws NullPointerException if item is null
+     */
+    public static void setItemID(ItemStack item, String id) {
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) throw new NullPointerException("Item has no ItemMeta");
+
+        PersistentDataContainer container = meta.getPersistentDataContainer();
+        container.set(key, PersistentDataType.STRING, id);
+        item.setItemMeta(meta);
+    }
+
+    /**
+     * Adds an item ID to the PersistentDataContainer of the meta. Remember to apply the ItemMeta back to the ItemStack!
+     * @param meta Meta to add an ID to
+     * @throws NullPointerException if meta is null
+     */
+    public static void setItemID(ItemMeta meta, String id) {
+
+        if (meta == null) throw new NullPointerException("Meta cannot be null");
+
+        PersistentDataContainer container = meta.getPersistentDataContainer();
+        container.set(key, PersistentDataType.STRING, id);
+    }
+
+    public static String getItemID(ItemStack item) {
+        if (item == null) return null;
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return null;
+
+        PersistentDataContainer container = meta.getPersistentDataContainer();
+        return container.get(key, PersistentDataType.STRING);
     }
 
 

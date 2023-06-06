@@ -21,6 +21,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
     @Override
@@ -66,19 +67,17 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
         if (event.getAction() != Action.LEFT_CLICK_BLOCK) return;
         Player p = event.getPlayer();
         Block b = event.getClickedBlock();
-        // these if statements are horrendous, fix them later
-        if (b.getType() == Material.OBSIDIAN) {
+
+        if (b != null && b.getType() == Material.OBSIDIAN) {
             // Verify they're holding the golden pickaxe
             ItemStack item = p.getInventory().getItemInMainHand();
-            if (item.getType() == Material.GOLDEN_PICKAXE) {
-                if (item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().getDisplayName().equals(ChatColor.GOLD + "Golden Pickaxe")) {
-                    event.setCancelled(true);
-                    // Send the JSON chat message
-                    TextComponent component = new TextComponent(ChatColor.GOLD + "Haha, funny pickaxe!");
-                    component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pocketknife funnypickaxe"));
-                    component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click for one!")));
-                    p.spigot().sendMessage(component);
-                }
+            if (Objects.equals(Utils.getItemID(item), "FUNNY_PICKAXE")) {
+                event.setCancelled(true);
+                // Send the JSON chat message
+                TextComponent component = new TextComponent(ChatColor.GOLD + "Haha, funny pickaxe!");
+                component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pocketknife funnypickaxe"));
+                component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click for one!")));
+                p.spigot().sendMessage(component);
             }
         }
     }
@@ -88,6 +87,7 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
 
         meta.setDisplayName(ChatColor.GOLD + "Golden Pickaxe");
         meta.setLore(Arrays.asList(ChatColor.GRAY + "Breaks a 5-high pillar of", ChatColor.GRAY + "obsidian when 2-tapping it."));
+        Utils.setItemID(meta, "FUNNY_PICKAXE");
 
         item.setItemMeta(meta);
         item.setAmount(quantity);
