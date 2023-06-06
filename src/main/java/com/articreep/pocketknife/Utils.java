@@ -1,5 +1,6 @@
 package com.articreep.pocketknife;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -74,10 +75,11 @@ public class Utils {
 
         // Generate vector, player - tnt = vector
         Vector vector = endLoc.toVector().subtract(startLoc.toVector());
+        // IMPORTANT: make sure you do NOT normalize the zero vector.
         if (vector.lengthSquared() == 0) return vector;
-        vector.setY(0);
         vector.normalize();
         vector.multiply(factor);
+        vector.setY(0);
 
         return vector;
     }

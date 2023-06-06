@@ -230,6 +230,7 @@ public class RegularityReworks extends PocketknifeSubcommand implements Listener
             double rads = 0;
             @Override
             public void run() {
+                if (victim.isDead()) this.cancel();
                 if (t <= 0) {
                     // Whether player can influence the direction of the blast
                     if (allowControl) {
