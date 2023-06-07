@@ -85,25 +85,6 @@ public class Utils {
     }
 
     /**
-     * Takes two locations, converts them to vectors, and creates a resultant.
-     * The vector is then normalized to length 1 and multiplied by the provided factor.
-     * @param start Starting location, vector points away from here
-     * @param end Ending location, vector points towards here
-     * @param factor Magnitude of the final vector
-     * @return The final vector
-     */
-    public static Vector locationsToNormalizedVector(Location start, Location end, double factor) {
-        if (start.getWorld() != end.getWorld()) throw new IllegalArgumentException("Locations' worlds do not match!");
-
-        // Generate vector, player - tnt = vector
-        Vector vector = end.toVector().subtract(start.toVector());
-        vector.normalize();
-        vector.multiply(factor);
-
-        return vector;
-    }
-
-    /**
      * Gets a runCommand method object from the specified class name. Make sure hasCommandMethod is checked!
      * @param className class name
      * @param classLoader class loader from Bukkit
