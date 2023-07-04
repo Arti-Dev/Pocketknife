@@ -80,12 +80,10 @@ public class DiamondHit extends PocketknifeSubcommand implements Listener, Pocke
                 sendDescriptionMessage(sender);
                 sendSyntaxMessage(sender);
             } else {
-                if (args[0].equalsIgnoreCase("on")) {
-                    enabled = true;
-                    sender.sendMessage(ChatColor.GREEN + "DiamondHit toggled ON");
-                } else if (args[0].equalsIgnoreCase("off")) {
-                    enabled = false;
-                    sender.sendMessage(ChatColor.RED + "DiamondHit toggled OFF");
+                if (args[0].equalsIgnoreCase("toggle")) {
+                    enabled = !enabled;
+                    sender.sendMessage(ChatColor.RED + "DiamondHit toggled " +
+                            Utils.booleanStatus(enabled));
                 } else {
                     sendSyntaxMessage(sender);
                 }
@@ -111,7 +109,7 @@ public class DiamondHit extends PocketknifeSubcommand implements Listener, Pocke
 
     @Override
     public String getSyntax() {
-        return "Usage: /pocketknife DiamondHit <on/off>";
+        return "Usage: /pocketknife DiamondHit toggle";
     }
 
     @Override

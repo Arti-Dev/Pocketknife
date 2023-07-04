@@ -31,12 +31,9 @@ public class SpawnPigsOnDeath extends PocketknifeSubcommand implements Listener,
 				sendDescriptionMessage(sender);
 				sendSyntaxMessage(sender);
 			} else {
-				if (args[0].equalsIgnoreCase("on")) {
-					enabled = true;
-					sender.sendMessage(ChatColor.GREEN + "SpawnPigsOnDeath toggled ON");
-				} else if (args[0].equalsIgnoreCase("off")) {
-					enabled = false;
-					sender.sendMessage(ChatColor.RED + "SpawnPigsOnDeath toggled OFF");
+				if (args[0].equalsIgnoreCase("toggle")) {
+					enabled = !enabled;
+					sender.sendMessage(ChatColor.GREEN + "SpawnPigsOnDeath toggled " + Utils.booleanStatus(enabled));
 				} else {
 					sendSyntaxMessage(sender);
 				}

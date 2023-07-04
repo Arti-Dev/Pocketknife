@@ -259,5 +259,10 @@ public class Utils {
         return container.get(key, PersistentDataType.STRING);
     }
 
+    public static String booleanStatus(boolean boo) {
+        if (boo) return "ON";
+        else return "OFF";
+    }
+
 
 }
