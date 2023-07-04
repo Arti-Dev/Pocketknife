@@ -50,8 +50,7 @@ public class SpawnPigsOnDeath extends PocketknifeSubcommand implements Listener,
 		List<String> completions = new ArrayList<>();
 		if (args.length == 1) {
 			ArrayList<String> strings = new ArrayList<>();
-			strings.add("on");
-			strings.add("off");
+			strings.add("toggle");
 			StringUtil.copyPartialMatches(args[0], strings, completions);
 		}
 		return completions;
