@@ -221,6 +221,13 @@ public class Utils {
         return new Vector(x, 0, z).normalize().multiply(magnitude).setY(0.4);
     }
 
+    public static Vector randomVector(double magnitude) {
+        double x = (Math.random() * 2) - 1;
+        double y = (Math.random() * 2) - 1;
+        double z = (Math.random() * 2) - 1;
+        return new Vector(x, y, z).normalize().multiply(magnitude);
+    }
+
     private static final NamespacedKey key = new NamespacedKey(Pocketknife.getInstance(), "ITEM_ID");
     /**
      * Adds an item ID to the PersistentDataContainer of the item.
@@ -264,5 +271,16 @@ public class Utils {
         else return "OFF";
     }
 
+    public static float invertYaw(float yaw) {
+        yaw += 180;
+        if (yaw >= 360) {
+            yaw -= 360;
+        }
+        return yaw;
+    }
+
+    public static float invertPitch(float pitch) {
+        return -pitch;
+    }
 
 }

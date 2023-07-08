@@ -1,6 +1,5 @@
 package com.articreep.pocketknife;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -13,7 +12,9 @@ import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.StringUtil;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class PingRune extends PocketknifeSubcommand implements PocketknifeFeatur
     private boolean enabled = false;
     @Override
     public String getDescription() {
-        return "Runes are cosmetic items that can be applied to items on Hypixel Skyblock." +
+        return "Runes are cosmetic items that can be applied to items on Hypixel Skyblock. " +
                 "Ping is the temporal latency between your client and the server.";
     }
 
@@ -72,11 +73,25 @@ public class PingRune extends PocketknifeSubcommand implements PocketknifeFeatur
                 else if (ping < 200) color = ChatColor.YELLOW;
                 else color = ChatColor.RED;
 
-                Location loc = victim.getLocation();
+                Location loc = victim.getLocation().add(0, 0.5, 0);
+                offsetLocation(loc, player.getLocation());
                 TextDisplay display = (TextDisplay) w.spawnEntity(loc, EntityType.TEXT_DISPLAY);
                 display.setText(color + String.valueOf(ping) + "ms");
+                setTextRotation(display, player.getLocation());
 
-                Bukkit.getScheduler().runTaskLater(Pocketknife.getInstance(), display::remove, 40);
+                new BukkitRunnable() {
+                    int i = 0;
+                    @Override
+                    public void run() {
+                        if (i >= 40) {
+                            display.remove();
+                            this.cancel();
+                        }
+                        setTextRotation(display, player.getLocation());
+                        i++;
+
+                    }
+                }.runTaskTimer(Pocketknife.getInstance(), 0, 1);
             }
 
 
@@ -84,4 +99,30 @@ public class PingRune extends PocketknifeSubcommand implements PocketknifeFeatur
 
 
     }
+
+    private static void offsetLocation(Location textLoc, Location playerLoc) {
+        // TODO We could do some linear algebra logic, but not right now
+
+        Location primaryLoc = textLoc.clone();
+        Vector diff = primaryLoc.subtract(playerLoc).toVector();
+        // Create a random vector to be applied to the original effect location
+        Vector randomVec = Utils.randomVector(0.7);
+        Vector resultant = diff.clone().add(randomVec);
+
+        // Ensure that the resulting location will be closer to the player and not further away.
+        // If not just subtract the random vector rather than add it.
+        if (resultant.lengthSquared() < diff.lengthSquared()) {
+            textLoc.add(randomVec);
+        } else {
+            textLoc.subtract(randomVec);
+        }
+    }
+
+
+
+    private static void setTextRotation(TextDisplay display, Location damagerLoc) {
+        display.setRotation(Utils.invertYaw(damagerLoc.getYaw()), Utils.invertPitch(damagerLoc.getPitch()));
+    }
+
+
 }
