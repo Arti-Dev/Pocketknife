@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Damageable;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -19,7 +20,7 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PingRune extends PocketknifeSubcommand implements PocketknifeFeature, Listener {
+public class PingRune extends PocketknifeSubcommand implements PocketknifeFeature, Listener, PocketknifeConfigurable {
     private boolean enabled = false;
     @Override
     public String getDescription() {
@@ -39,6 +40,8 @@ public class PingRune extends PocketknifeSubcommand implements PocketknifeFeatur
             } else {
                 sendSyntaxMessage(sender);
             }
+            Pocketknife.getInstance().getConfig().set("pingrune", enabled);
+            Pocketknife.getInstance().saveConfig();
         }
         return true;
     }
@@ -93,11 +96,7 @@ public class PingRune extends PocketknifeSubcommand implements PocketknifeFeatur
                     }
                 }.runTaskTimer(Pocketknife.getInstance(), 0, 1);
             }
-
-
         }
-
-
     }
 
     private static void offsetLocation(Location textLoc, Location playerLoc) {
@@ -124,5 +123,9 @@ public class PingRune extends PocketknifeSubcommand implements PocketknifeFeatur
         display.setRotation(Utils.invertYaw(damagerLoc.getYaw()), Utils.invertPitch(damagerLoc.getPitch()));
     }
 
-
+    @Override
+    public void loadConfig(FileConfiguration config) {
+        enabled = config.getBoolean("pingrune");
+        config.set("pingrune", enabled);
+    }
 }

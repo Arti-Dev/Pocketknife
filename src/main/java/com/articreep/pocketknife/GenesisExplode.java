@@ -96,6 +96,7 @@ public class GenesisExplode extends PocketknifeSubcommand implements Pocketknife
     @Override
     public void loadConfig(FileConfiguration config) {
         enabled = config.getBoolean("genesisexplode");
+        config.set("genesisexplode", enabled);
     }
 
     private static Vector randomVec() {

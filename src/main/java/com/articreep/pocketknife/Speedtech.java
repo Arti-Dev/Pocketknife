@@ -5,6 +5,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitTask;
@@ -16,9 +17,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeature, Listener {
+public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeature, Listener, PocketknifeConfigurable {
     private boolean enabled = false;
     private boolean lines = false;
+    /**
+     * If this variable is something other than -1, a Runnable is already running.
+     * Do not call trackLocations() if this is the case.
+     */
     private int taskID = -1;
     private final Map<Player, Float> initialSpeeds = new HashMap<>();
     private final Map<Player, Integer> speedBonuses = new HashMap<>();
@@ -45,12 +50,8 @@ public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeatu
                     case "toggle" -> {
                         enabled = !enabled;
                         sender.sendMessage(ChatColor.GREEN + "Speedtech toggled " + Utils.booleanStatus(enabled));
-                        if (enabled) {
-                            taskID = trackLocations();
-                        } else {
-                            Bukkit.getScheduler().cancelTask(taskID);
-                            taskID = -1;
-                        }
+                        if (enabled) trackLocations();
+                        else stopTracking();
                     }
 
                     case "lines" -> {
@@ -58,7 +59,7 @@ public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeatu
                         sender.sendMessage(ChatColor.GREEN + "Lines toggled " + Utils.booleanStatus(lines));
                         if (lines) {
                             player.sendMessage(ChatColor.YELLOW + "Speedtech was toggled ON for you");
-                            taskID = trackLocations();
+                            trackLocations();
                             enabled = true;
                             player.sendMessage(ChatColor.GREEN + "GREEN is the direction where you are looking at");
                             player.sendMessage(ChatColor.RED + "RED is the direction where you are moving");
@@ -67,6 +68,8 @@ public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeatu
 
                     default -> sendSyntaxMessage(sender);
                 }
+                Pocketknife.getInstance().getConfig().set("speedtech", enabled);
+                Pocketknife.getInstance().saveConfig();
             }
             return true;
         }
@@ -134,7 +137,8 @@ public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeatu
         }
     }
 
-    private int trackLocations() {
+    private void trackLocations() {
+        if (taskID != -1) return;
         BukkitTask task = Bukkit.getScheduler().runTaskTimer(Pocketknife.getInstance(), () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
 
@@ -235,7 +239,21 @@ public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeatu
             }
         }, 0, 2);
 
-        return task.getTaskId();
+        taskID = task.getTaskId();
+    }
+
+    private void stopTracking() {
+        if (taskID == -1) return;
+        Bukkit.getScheduler().cancelTask(taskID);
+        taskID = -1;
+    }
+
+    @Override
+    public void loadConfig(FileConfiguration config) {
+        enabled = config.getBoolean("speedtech");
+        config.set("speedtech", enabled);
+        if (enabled) trackLocations();
+        else stopTracking();
     }
 
     private double calculateAngle(Player player, Location prevLoc, Location currentLoc) {

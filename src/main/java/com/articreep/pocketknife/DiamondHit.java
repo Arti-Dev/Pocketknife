@@ -71,6 +71,7 @@ public class DiamondHit extends PocketknifeSubcommand implements Listener, Pocke
     @Override
     public void loadConfig(FileConfiguration config) {
         enabled = config.getBoolean("diamondhit");
+        config.set("diamondhit", enabled);
     }
 
     @Override
