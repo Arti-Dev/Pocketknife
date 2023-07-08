@@ -211,7 +211,8 @@ public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeatu
                     if (speed > 1) speed = 1;
 
                     player.setWalkSpeed(speed);
-                    player.sendMessage("Speeding up to " + speed);
+                    // Lines debug message
+                    if (lines) player.sendMessage("Speeding up to " + speed);
 
                 }
 
@@ -228,7 +229,8 @@ public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeatu
                         speedBonuses.remove(player);
                         player.setWalkSpeed(initialSpeeds.get(player));
                         initialSpeeds.remove(player);
-                        player.sendMessage("Speed reset");
+                        // Lines debug message
+                        if (lines) player.sendMessage("Speed reset");
                     }
                 }
 
