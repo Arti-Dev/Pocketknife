@@ -1,15 +1,13 @@
 package com.articreep.pocketknife;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Damageable;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.TextDisplay;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -79,22 +77,11 @@ public class PingRune extends PocketknifeSubcommand implements PocketknifeFeatur
                 Location loc = victim.getLocation().add(0, 0.5, 0);
                 offsetLocation(loc, player.getLocation());
                 TextDisplay display = (TextDisplay) w.spawnEntity(loc, EntityType.TEXT_DISPLAY);
+                display.setBillboard(Display.Billboard.CENTER);
                 display.setText(color + String.valueOf(ping) + "ms");
                 setTextRotation(display, player.getLocation());
 
-                new BukkitRunnable() {
-                    int i = 0;
-                    @Override
-                    public void run() {
-                        if (i >= 40) {
-                            display.remove();
-                            this.cancel();
-                        }
-                        setTextRotation(display, player.getLocation());
-                        i++;
-
-                    }
-                }.runTaskTimer(Pocketknife.getInstance(), 0, 1);
+                Bukkit.getScheduler().runTaskLater(Pocketknife.getInstance(), display::remove, 40);
             }
         }
     }
