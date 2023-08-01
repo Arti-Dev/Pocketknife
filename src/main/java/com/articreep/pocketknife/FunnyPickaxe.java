@@ -6,6 +6,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -19,9 +20,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
     @Override
@@ -40,7 +39,7 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
                 player.sendMessage(ChatColor.YELLOW + "Zero or less?");
                 return true;
             } else if (amount == 1) {
-                player.sendMessage(ChatColor.YELLOW + "Go ham!");
+                player.sendMessage(ChatColor.YELLOW + "Gave you a " + ChatColor.GOLD + "Golden Pickaxe");
             } else {
                 player.sendMessage(ChatColor.YELLOW + "Stacking is definitely an intended mechanic.");
             }
@@ -61,6 +60,7 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
         return "Usage: /pocketknife FunnyPickaxe <amount>";
     }
 
+    private final Map<UUID, Location> confirmations = new HashMap<>();
     @EventHandler
     public void onPickaxeBreak(PlayerInteractEvent event) {
         if (event.getHand() == EquipmentSlot.OFF_HAND) return;
@@ -73,10 +73,22 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
             ItemStack item = p.getInventory().getItemInMainHand();
             if (Objects.equals(Utils.getItemID(item), "FUNNY_PICKAXE")) {
                 event.setCancelled(true);
+
+                // I'm too worried about dupe UUIDs aren't I?
+                UUID randomUUID = UUID.randomUUID();
+                while (confirmations.containsKey(randomUUID)) {
+                    randomUUID = UUID.randomUUID();
+                }
+
+                confirmations.put(randomUUID, b.getLocation());
+                UUID finalRandomUUID = randomUUID;
+                Bukkit.getScheduler().runTaskLater(Pocketknife.getInstance(), () -> confirmations.remove(finalRandomUUID), 200);
+
                 // Send the JSON chat message
-                TextComponent component = new TextComponent(ChatColor.GOLD + "Haha, funny pickaxe!");
-                component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pocketknife funnypickaxe"));
-                component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click for one!")));
+                TextComponent component = new TextComponent(ChatColor.DARK_PURPLE + String.valueOf(ChatColor.BOLD) + "BLOCK! "  +
+                        ChatColor.GRAY + "Are you sure you want to break this block?");
+                component.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pocketknife funnypickaxe " + randomUUID));
+                component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ChatColor.GREEN + "Click to confirm!")));
                 p.spigot().sendMessage(component);
             }
         }
