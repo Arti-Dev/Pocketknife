@@ -1,5 +1,6 @@
 package com.articreep.pocketknife;
 
+import net.craftcitizen.imagemaps.ImageMap;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -8,10 +9,12 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -127,6 +130,23 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onItemFrameRightClick(PlayerInteractEntityEvent event) {
+        if (event.getRightClicked() instanceof ItemFrame itemFrame) {
+            Player player = event.getPlayer();
+            ItemStack item = player.getInventory().getItemInMainHand();
+            if (Utils.getItemID(item).equals(Utils.getItemID(goldenPickaxe(1)))) {
+                event.setCancelled(true);
+                player.playSound(player, Sound.ITEM_GLOW_INK_SAC_USE, 1, 1);
+                boolean glowing = itemFrame.isGlowing();
+                itemFrame.setGlowing(!glowing);
+
+            }
+        }
+
+    }
+
     private static ItemStack goldenPickaxe(int quantity) {
         ItemStack item = new ItemStack(Material.GOLDEN_PICKAXE);
         ItemMeta meta = item.getItemMeta();
