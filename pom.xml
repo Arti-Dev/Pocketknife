@@ -44,6 +44,11 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
+        <repository>
+            <id>github</id>
+            <name>ImageMaps repository</name>
+            <url>https://maven.pkg.github.com/SydMontague/ImageMaps</url>
+        </repository>
     </repositories>
     <dependencies>
         <!--This adds the Spigot API artifact to the build -->
@@ -69,6 +74,11 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.29.2-GA</version>
+        </dependency>
+        <dependency>
+            <groupId>net.craftcitizen</groupId>
+            <artifactId>imagemaps</artifactId>
+            <version>1.0.1</version>
         </dependency>
 
     </dependencies>
