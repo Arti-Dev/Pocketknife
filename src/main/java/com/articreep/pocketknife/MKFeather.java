@@ -1,9 +1,6 @@
 package com.articreep.pocketknife;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -78,9 +75,11 @@ public class MKFeather extends PocketknifeSubcommand implements PocketknifeFeatu
                 player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10 * 20, 2-1));
                 player.playSound(player.getLocation(), Sound.ENTITY_HORSE_JUMP, 1, 1);
 
-                playersOnCooldown.add(player);
-                Bukkit.getScheduler().runTaskLater(Pocketknife.getInstance(),
-                        () -> playersOnCooldown.remove(player), 15 * 20);
+                if (player.getGameMode() != GameMode.CREATIVE) {
+                    playersOnCooldown.add(player);
+                    Bukkit.getScheduler().runTaskLater(Pocketknife.getInstance(),
+                            () -> playersOnCooldown.remove(player), 15 * 20);
+                }
             } else {
                 player.playSound(player.getLocation(), Sound.ENTITY_SNIFFER_DIGGING_STOP, 1, 1);
             }
