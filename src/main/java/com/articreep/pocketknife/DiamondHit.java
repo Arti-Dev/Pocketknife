@@ -1,8 +1,6 @@
 package com.articreep.pocketknife;
 
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -13,6 +11,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.LazyMetadataValue;
+import org.bukkit.metadata.MetadataValue;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.StringUtil;
 import org.bukkit.util.Vector;
 
@@ -23,6 +25,7 @@ public class DiamondHit extends PocketknifeSubcommand implements Listener, Pocke
     // WeakHashMaps automatically remove garbage-collected members
     private static final Set<Item> droppedXPSet = Collections.newSetFromMap(new WeakHashMap<>());
     private boolean enabled = false;
+    private static final NamespacedKey cooldownKey = new NamespacedKey(Pocketknife.getInstance(), "DIAMONDHIT_COOLDOWN");
 
     @EventHandler
     public void onDiamondHit(EntityDamageByEntityEvent event) {
@@ -30,6 +33,10 @@ public class DiamondHit extends PocketknifeSubcommand implements Listener, Pocke
         if (!enabled) return;
 
         if (!(event.getDamager() instanceof Player damager && event.getEntity() instanceof Player victim)) return;
+
+        PersistentDataContainer container = victim.getPersistentDataContainer();
+        // something feels off about this
+        if (container.has(cooldownKey, PersistentDataType.BOOLEAN)) return;
 
         ItemStack[] items = victim.getEquipment().getArmorContents();
 
@@ -41,8 +48,10 @@ public class DiamondHit extends PocketknifeSubcommand implements Listener, Pocke
             }
         }
 
-        // todo add a cooldown
         if (hasDiamondArmor) dropXP(damager, victim);
+        container.set(cooldownKey, PersistentDataType.BOOLEAN, true);
+
+        Bukkit.getScheduler().runTaskLater(Pocketknife.getInstance(), () -> container.remove(cooldownKey), 10 * 20);
     }
     private void dropXP(Player damager, Player victim) {
         Vector v = Utils.entitiesToNormalizedVector(damager, victim, 0.5);
