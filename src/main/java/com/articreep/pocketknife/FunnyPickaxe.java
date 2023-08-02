@@ -4,10 +4,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -26,29 +23,66 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
-            int amount = 1;
+            int amount;
             if (args.length >= 1) {
-                try {
-                    amount = Integer.parseInt(args[0]);
-                } catch (NumberFormatException e) {
-                    player.sendMessage(ChatColor.RED + "That's not an integer.");
-                    return true;
+                if (!args[0].equalsIgnoreCase("confirm")) {
+                    // Player just wants a pickaxe
+                    try {
+                        amount = Integer.parseInt(args[0]);
+                    } catch (NumberFormatException e) {
+                        player.sendMessage(ChatColor.RED + "That's not an integer.");
+                        return true;
+                    }
+
+                    if (amount <= 0) {
+                        player.sendMessage(ChatColor.YELLOW + "Zero or less?");
+                        return true;
+                    } else if (amount == 1) {
+                        player.sendMessage(ChatColor.YELLOW + "Gave you a " + ChatColor.GOLD + "Golden Pickaxe");
+                    } else {
+                        player.sendMessage(ChatColor.YELLOW + "Stacking is definitely an intended mechanic.");
+                    }
+                    player.getInventory().addItem(goldenPickaxe(amount));
+                } else {
+                    // Player might have clicked a confirm button
+                    if (args.length == 2) {
+                        // Second one must be a UUID
+                        UUID uuid;
+                        try {
+                            uuid = UUID.fromString(args[1]);
+                        } catch (IllegalArgumentException e) {
+                            player.sendMessage(ChatColor.RED + "Something went wrong. Impressive.");
+                            return true;
+                        }
+
+                        if (confirmations.containsKey(uuid)) {
+                            Location loc = confirmations.get(uuid);
+                            Block block = loc.getBlock();
+                            if (block.getType() == Material.OBSIDIAN) {
+                                // Break the block
+                                block.setType(Material.AIR);
+                                player.playSound(player.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+                                // Remove any other confirmations referencing the block
+                                confirmations.keySet().removeIf(uuid1 -> confirmations.get(uuid1).equals(loc));
+                            } else {
+                                // Block is not obsidian
+                                player.sendMessage(ChatColor.RED + "This confirmation has expired!");
+                            }
+                            confirmations.remove(uuid);
+                        } else {
+                            player.sendMessage(ChatColor.RED + "This confirmation has expired!");
+                        }
+
+                    }
                 }
             }
-            if (amount <= 0) {
-                player.sendMessage(ChatColor.YELLOW + "Zero or less?");
-                return true;
-            } else if (amount == 1) {
-                player.sendMessage(ChatColor.YELLOW + "Gave you a " + ChatColor.GOLD + "Golden Pickaxe");
-            } else {
-                player.sendMessage(ChatColor.YELLOW + "Stacking is definitely an intended mechanic.");
-            }
-            player.getInventory().addItem(goldenPickaxe(amount));
+
         } else {
             Bukkit.getLogger().info("You're not a player.");
         }
         return true;
     }
+
 
     @Override
     public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
@@ -74,7 +108,7 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
             if (Objects.equals(Utils.getItemID(item), "FUNNY_PICKAXE")) {
                 event.setCancelled(true);
 
-                // I'm too worried about dupe UUIDs aren't I?
+                // I'm too worried about dupe UUIDs, aren't I?
                 UUID randomUUID = UUID.randomUUID();
                 while (confirmations.containsKey(randomUUID)) {
                     randomUUID = UUID.randomUUID();
