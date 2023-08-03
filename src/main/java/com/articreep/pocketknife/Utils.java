@@ -257,7 +257,7 @@ public class Utils {
         container.set(key, PersistentDataType.STRING, id);
     }
 
-    public static String getItemID(ItemStack item) {
+    public static @Nullable String getItemID(ItemStack item) {
         if (item == null) return null;
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return null;

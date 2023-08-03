@@ -138,7 +138,7 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
         if (event.getRightClicked() instanceof ItemFrame itemFrame) {
             Player player = event.getPlayer();
             ItemStack item = player.getInventory().getItemInMainHand();
-            if (Utils.getItemID(item).equals(Utils.getItemID(goldenPickaxe(1)))) {
+            if (Objects.equals(Utils.getItemID(item), Utils.getItemID(goldenPickaxe(1)))) {
                 event.setCancelled(true);
                 player.playSound(player, Sound.ITEM_GLOW_INK_SAC_USE, 1, 1);
                 boolean glowing = itemFrame.isGlowing();
