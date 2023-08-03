@@ -125,7 +125,7 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
                 TextComponent component = new TextComponent(ChatColor.DARK_PURPLE + String.valueOf(ChatColor.BOLD) + "BLOCK! "  +
                         ChatColor.GRAY + "Are you sure you want to break this block? ");
                 TextComponent confirmComponent = new TextComponent(ChatColor.GREEN + "" + ChatColor.BOLD + "[YES]");
-                confirmComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pocketknife funnypickaxe confirm" + randomUUID));
+                confirmComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pocketknife funnypickaxe confirm " + randomUUID));
                 confirmComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ChatColor.GREEN + "Click to confirm!")));
                 component.addExtra(confirmComponent);
                 p.spigot().sendMessage(component);
