@@ -256,7 +256,7 @@ public class Utils {
         container.set(key, PersistentDataType.STRING, id);
     }
 
-    public static String getItemID(ItemStack item) {
+    public static @Nullable String getItemID(ItemStack item) {
         if (item == null) return null;
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return null;
@@ -282,4 +282,22 @@ public class Utils {
         return -pitch;
     }
 
+    /**
+     * Rotates a vector by a given number of degrees; assume looking from a top-down view (around the Y axis)
+     * Copied from <a href="https://www.spigotmc.org/threads/rotating-vector.119378/">...</a>
+     * @param vector - The vector to rotate
+     * @param degrees - The number of degrees to rotate by
+     * @return - A rotated vector around the Y axis
+     */
+    public static Vector rotateVectorAroundY(Vector vector, double degrees) {
+        double rad = Math.toRadians(degrees);
+
+        double currentX = vector.getX();
+        double currentZ = vector.getZ();
+
+        double cosine = Math.cos(rad);
+        double sine = Math.sin(rad);
+
+        return new Vector((cosine * currentX - sine * currentZ), vector.getY(), (sine * currentX + cosine * currentZ));
+    }
 }
