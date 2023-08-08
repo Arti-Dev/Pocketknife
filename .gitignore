@@ -1,2 +1,5 @@
 # Project exclude paths
 /target/
+/.idea/
+Pocketknife.iml
+dependency-reduced-pom.xml
