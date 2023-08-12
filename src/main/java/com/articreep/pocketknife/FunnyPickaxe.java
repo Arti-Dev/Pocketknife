@@ -26,6 +26,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.StringUtil;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
@@ -353,12 +354,24 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
 
     @Override
     public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        return null;
+        List<String> completions = new ArrayList<>();
+        ArrayList<String> strings = new ArrayList<>();
+        if (args.length == 1) {
+            strings.add("mode");
+            strings.add("1");
+            StringUtil.copyPartialMatches(args[0], strings, completions);
+        } else if (args.length == 2) {
+            strings.add("0");
+            strings.add("1");
+            strings.add("2");
+            StringUtil.copyPartialMatches(args[1], strings, completions);
+        }
+        return completions;
     }
 
     @Override
     String getSyntax() {
-        return "Usage: /pocketknife FunnyPickaxe <amount>";
+        return "Usage: /pocketknife FunnyPickaxe <amount> OR /pocketknife FunnyPickaxe mode <value>";
     }
 
     private static ItemStack goldenPickaxe(int quantity) {
