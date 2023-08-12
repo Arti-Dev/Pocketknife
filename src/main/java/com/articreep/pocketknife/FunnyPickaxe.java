@@ -217,10 +217,10 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
                 confirmComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ChatColor.GREEN + "Click when you're done!!")));
                 player.spigot().sendMessage(confirmComponent);
             } else {
-                player.sendMessage("Can't break this block right now as someone is already doing a captcha!");
+                player.sendMessage(ChatColor.RED + "Can't break this block right now as someone is already doing a captcha!");
             }
         } else {
-            player.sendMessage("Couldn't generate captcha since ImageMaps and/or WorldEdit is not installed on this server!");
+            player.sendMessage(ChatColor.RED + "Couldn't generate captcha since ImageMaps and/or WorldEdit is not installed on this server!");
         }
     }
 
@@ -249,16 +249,17 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
 
     private void breakCaptcha(Player player, UUID uuid) {
         if (isBreaking) {
-            player.sendMessage("A captcha is currently being broken down.");
+            player.sendMessage(ChatColor.RED + "A captcha is currently being broken down.");
             return;
         }
 
         World world = player.getWorld();
         if (!world.getName().equalsIgnoreCase("Elementals")) {
-            player.sendMessage("Couldn't break captcha since you are not on the \"Elementals\" world!");
+            player.sendMessage(ChatColor.RED + "Couldn't break captcha since you are not on the \"Elementals\" world!");
             return;
         }
         isBreaking = true;
+        player.sendMessage(ChatColor.GREEN + "Verifying captcha..");
         new BukkitRunnable() {
             final Iterator<BlockVector3> iterator = region.iterator();
             final List<Block> selectedBlocks = new ArrayList<>();
@@ -272,6 +273,7 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
                             block.breakNaturally(new ItemStack(Material.DIRT));
                         }
                         breakBlock(captcha.get(uuid).getBlock(), player);
+                        player.sendMessage(ChatColor.GREEN + "✔");
                         isBreaking = false;
                         captcha.remove(uuid);
                     }, 40);
