@@ -49,6 +49,10 @@
             <name>ImageMaps repository</name>
             <url>https://maven.pkg.github.com/SydMontague/ImageMaps</url>
         </repository>
+        <repository>
+            <id>enginehub-maven</id>
+            <url>https://maven.enginehub.org/repo/</url>
+        </repository>
     </repositories>
     <dependencies>
         <!--This adds the Spigot API artifact to the build -->
@@ -79,6 +83,11 @@
             <groupId>net.craftcitizen</groupId>
             <artifactId>imagemaps</artifactId>
             <version>1.0.10</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sk89q.worldedit</groupId>
+            <artifactId>worldedit-bukkit</artifactId>
+            <version>7.2.15</version>
         </dependency>
 
     </dependencies>
