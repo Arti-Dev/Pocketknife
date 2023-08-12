@@ -32,7 +32,7 @@
 
     <groupId>com.articreep.pocketknife</groupId>
     <artifactId>Pocketknife</artifactId>
-    <version>1.6</version>
+    <version>1.6.1-GOLDENPICKAXE</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -43,6 +43,15 @@
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+        </repository>
+        <repository>
+            <id>github</id>
+            <name>ImageMaps repository</name>
+            <url>https://maven.pkg.github.com/SydMontague/ImageMaps</url>
+        </repository>
+        <repository>
+            <id>enginehub-maven</id>
+            <url>https://maven.enginehub.org/repo/</url>
         </repository>
     </repositories>
     <dependencies>
@@ -69,6 +78,16 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.29.2-GA</version>
+        </dependency>
+        <dependency>
+            <groupId>net.craftcitizen</groupId>
+            <artifactId>imagemaps</artifactId>
+            <version>1.0.10</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sk89q.worldedit</groupId>
+            <artifactId>worldedit-bukkit</artifactId>
+            <version>7.2.15</version>
         </dependency>
 
     </dependencies>
