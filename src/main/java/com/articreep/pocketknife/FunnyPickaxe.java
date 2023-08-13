@@ -212,7 +212,8 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
                 });
 
                 captcha.put(uuid, confirmations.get(uuid));
-                player.sendMessage(ChatColor.YELLOW + "Please solve this captcha by clicking all boxes that make up the taxi.");
+                player.sendMessage(ChatColor.YELLOW + "Please solve this captcha by selecting all boxes that make up the taxi.");
+                player.sendMessage(ChatColor.YELLOW + "Right-click with the " + ChatColor.GOLD + "Golden Pickaxe" + ChatColor.YELLOW + " to select each item frame.");
                 TextComponent confirmComponent = new TextComponent(ChatColor.GREEN + "" + ChatColor.BOLD + "Click here when you're done");
                 confirmComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pocketknife funnypickaxe confirm " + uuid));
                 confirmComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ChatColor.GREEN + "Click when you're done!!")));
