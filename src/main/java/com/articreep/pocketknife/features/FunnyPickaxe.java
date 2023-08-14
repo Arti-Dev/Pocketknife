@@ -350,6 +350,7 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
         if (block.getType() == Material.OBSIDIAN) {
             block.setType(Material.AIR);
             player.playSound(player.getLocation(), Sound.BLOCK_LAVA_POP, 1, 1);
+            player.getWorld().spawnParticle(Particle.SMOKE_NORMAL, block.getLocation(), 1);
             return true;
         // Block is not obsidian
         } else return false;
