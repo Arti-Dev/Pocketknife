@@ -1,5 +1,8 @@
-package com.articreep.pocketknife;
+package com.articreep.pocketknife.features;
 
+import com.articreep.pocketknife.Pocketknife;
+import com.articreep.pocketknife.PocketknifeFeature;
+import com.articreep.pocketknife.PocketknifeSubcommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -47,7 +50,7 @@ public class BlockList extends PocketknifeSubcommand implements PocketknifeFeatu
     }
 
     @Override
-    boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
 
         Player player = (Player) sender;
         if (args.length > 0) {
@@ -141,7 +144,7 @@ public class BlockList extends PocketknifeSubcommand implements PocketknifeFeatu
     }
 
     @Override
-    List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
             ArrayList<String> strings = new ArrayList<>();
@@ -158,7 +161,7 @@ public class BlockList extends PocketknifeSubcommand implements PocketknifeFeatu
     }
 
     @Override
-    String getSyntax() {
+    public String getSyntax() {
         return "Usage: /pocketknife BlockList";
     }
 }

@@ -18,7 +18,7 @@ public abstract class PocketknifeSubcommand implements PocketknifeFeature {
      * @param args Arguments
      * @return Whether the command was successful (try not to return false)
      */
-    abstract boolean runCommand(CommandSender sender, Command command, String label, String[] args);
+    public abstract boolean runCommand(CommandSender sender, Command command, String label, String[] args);
 
     /**
      * Tabcomplete method, same as regular tabcomplete. Can return null
@@ -28,21 +28,21 @@ public abstract class PocketknifeSubcommand implements PocketknifeFeature {
      * @param args incomplete arguments
      * @return Tab completions
      */
-    abstract List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args);
+    public abstract List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args);
 
-    abstract String getSyntax();
+    public abstract String getSyntax();
 
     /**
      * Sends the specified object a message with the description.
      */
-    void sendDescriptionMessage(CommandSender sender) {
+    public void sendDescriptionMessage(CommandSender sender) {
         sender.sendMessage(getDescription());
     }
 
     /**
      * Sends the specified object a message with the command syntax.
      */
-    void sendSyntaxMessage(CommandSender sender) {
+    public void sendSyntaxMessage(CommandSender sender) {
         sender.sendMessage(ChatColor.RED + getSyntax());
     }
 

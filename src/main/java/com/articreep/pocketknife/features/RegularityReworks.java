@@ -1,5 +1,8 @@
-package com.articreep.pocketknife;
+package com.articreep.pocketknife.features;
 
+import com.articreep.pocketknife.Pocketknife;
+import com.articreep.pocketknife.PocketknifeSubcommand;
+import com.articreep.pocketknife.Utils;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;

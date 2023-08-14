@@ -1,5 +1,7 @@
-package com.articreep.pocketknife;
+package com.articreep.pocketknife.features;
 
+import com.articreep.pocketknife.Pocketknife;
+import com.articreep.pocketknife.PocketknifeSubcommand;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.NoteBlock;
@@ -67,7 +69,7 @@ public class Starstriker extends PocketknifeSubcommand {
     }
 
     @Override
-    String getSyntax() {
+    public String getSyntax() {
         return "Usage: /pocketknife Starstriker";
     }
 

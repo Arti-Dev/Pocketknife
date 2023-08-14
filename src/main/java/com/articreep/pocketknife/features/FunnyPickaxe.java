@@ -1,5 +1,8 @@
-package com.articreep.pocketknife;
+package com.articreep.pocketknife.features;
 
+import com.articreep.pocketknife.Pocketknife;
+import com.articreep.pocketknife.PocketknifeSubcommand;
+import com.articreep.pocketknife.Utils;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import net.craftcitizen.imagemaps.ImageMaps;
@@ -371,7 +374,7 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
     }
 
     @Override
-    String getSyntax() {
+    public String getSyntax() {
         return "Usage: /pocketknife FunnyPickaxe <amount> OR /pocketknife FunnyPickaxe mode <value>";
     }
 

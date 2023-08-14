@@ -1,5 +1,9 @@
-package com.articreep.pocketknife;
+package com.articreep.pocketknife.features;
 
+import com.articreep.pocketknife.Pocketknife;
+import com.articreep.pocketknife.PocketknifeConfigurable;
+import com.articreep.pocketknife.PocketknifeSubcommand;
+import com.articreep.pocketknife.Utils;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -11,8 +15,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.LazyMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.StringUtil;

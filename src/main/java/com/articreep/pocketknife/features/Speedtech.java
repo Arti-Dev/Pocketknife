@@ -1,5 +1,6 @@
-package com.articreep.pocketknife;
+package com.articreep.pocketknife.features;
 
+import com.articreep.pocketknife.*;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -40,7 +41,7 @@ public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeatu
     }
 
     @Override
-    boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 0) {
                 sendDescriptionMessage(sender);
@@ -77,7 +78,7 @@ public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeatu
     }
 
     @Override
-    List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
             ArrayList<String> strings = new ArrayList<>();
@@ -89,7 +90,7 @@ public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeatu
     }
 
     @Override
-    String getSyntax() {
+    public String getSyntax() {
         return "Usage: /pocketknife Speedtech toggle";
     }
 

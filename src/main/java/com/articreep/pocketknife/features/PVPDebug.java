@@ -1,5 +1,7 @@
-package com.articreep.pocketknife;
+package com.articreep.pocketknife.features;
 
+import com.articreep.pocketknife.Pocketknife;
+import com.articreep.pocketknife.PocketknifeSubcommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -31,7 +33,7 @@ public class PVPDebug extends PocketknifeSubcommand implements Listener {
     }
 
     @Override
-    boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         enabled = (!enabled);
         if (enabled) {
             // Start runnable
@@ -48,12 +50,12 @@ public class PVPDebug extends PocketknifeSubcommand implements Listener {
     }
 
     @Override
-    List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
         return null;
     }
 
     @Override
-    String getSyntax() {
+    public String getSyntax() {
         return "Usage: /pocketknife PVPDebug";
     }
 

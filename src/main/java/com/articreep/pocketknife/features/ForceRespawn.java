@@ -1,5 +1,6 @@
-package com.articreep.pocketknife;
+package com.articreep.pocketknife.features;
 
+import com.articreep.pocketknife.PocketknifeSubcommand;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -41,7 +42,7 @@ public class ForceRespawn extends PocketknifeSubcommand {
     }
 
     @Override
-    String getSyntax() {
+    public String getSyntax() {
         return "Usage: /pocketknife ForceRespawn <player>";
     }
 

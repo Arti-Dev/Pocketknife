@@ -1,5 +1,6 @@
-package com.articreep.pocketknife;
+package com.articreep.pocketknife.features;
 
+import com.articreep.pocketknife.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -26,7 +27,7 @@ public class PingRune extends PocketknifeSubcommand implements PocketknifeFeatur
     }
 
     @Override
-    boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
             sendDescriptionMessage(sender);
             sendSyntaxMessage(sender);
@@ -44,7 +45,7 @@ public class PingRune extends PocketknifeSubcommand implements PocketknifeFeatur
     }
 
     @Override
-    List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
             ArrayList<String> strings = new ArrayList<>();
@@ -55,7 +56,7 @@ public class PingRune extends PocketknifeSubcommand implements PocketknifeFeatur
     }
 
     @Override
-    String getSyntax() {
+    public String getSyntax() {
         return "Usage: /pocketknife PingRune toggle";
     }
 

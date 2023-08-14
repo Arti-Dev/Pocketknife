@@ -1,5 +1,7 @@
-package com.articreep.pocketknife;
+package com.articreep.pocketknife.features;
 
+import com.articreep.pocketknife.PocketknifeSubcommand;
+import com.articreep.pocketknife.Utils;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -66,7 +68,7 @@ public class SendUp extends PocketknifeSubcommand {
     }
 
     @Override
-    String getSyntax() {
+    public String getSyntax() {
         return "Usage: /pocketknife SendUp <player> <player>...";
     }
 

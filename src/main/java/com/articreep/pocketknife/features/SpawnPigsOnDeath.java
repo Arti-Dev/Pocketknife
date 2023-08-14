@@ -1,5 +1,9 @@
-package com.articreep.pocketknife;
+package com.articreep.pocketknife.features;
 
+import com.articreep.pocketknife.Pocketknife;
+import com.articreep.pocketknife.PocketknifeConfigurable;
+import com.articreep.pocketknife.PocketknifeSubcommand;
+import com.articreep.pocketknife.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -57,7 +61,7 @@ public class SpawnPigsOnDeath extends PocketknifeSubcommand implements Listener,
 	}
 
 	@Override
-	String getSyntax() {
+    public String getSyntax() {
 		return "Usage: /pocketknife SpawnPigsOnDeath <on/off>";
 	}
 

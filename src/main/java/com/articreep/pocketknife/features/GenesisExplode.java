@@ -1,5 +1,8 @@
-package com.articreep.pocketknife;
+package com.articreep.pocketknife.features;
 
+import com.articreep.pocketknife.Pocketknife;
+import com.articreep.pocketknife.PocketknifeConfigurable;
+import com.articreep.pocketknife.PocketknifeSubcommand;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -89,7 +92,7 @@ public class GenesisExplode extends PocketknifeSubcommand implements Pocketknife
     }
 
     @Override
-    String getSyntax() {
+    public String getSyntax() {
         return "Usage: /pocketknife GenesisExplode";
     }
 

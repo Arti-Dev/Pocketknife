@@ -1,5 +1,9 @@
-package com.articreep.pocketknife;
+package com.articreep.pocketknife.features;
 
+import com.articreep.pocketknife.Pocketknife;
+import com.articreep.pocketknife.PocketknifeFeature;
+import com.articreep.pocketknife.PocketknifeSubcommand;
+import com.articreep.pocketknife.Utils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -31,7 +35,7 @@ public class SpleefMinionSupplements extends PocketknifeSubcommand implements Po
     }
 
     @Override
-    boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             player.getInventory().addItem(createSpleefball(1), createSpleefBlock(1), createTNTSpleefBlock(1),
                     createSpleefGun(1), createExploBow(1));
@@ -41,12 +45,12 @@ public class SpleefMinionSupplements extends PocketknifeSubcommand implements Po
     }
 
     @Override
-    List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
         return null;
     }
 
     @Override
-    String getSyntax() {
+    public String getSyntax() {
         return null;
     }
 

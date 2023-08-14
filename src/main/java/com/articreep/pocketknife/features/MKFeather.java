@@ -1,5 +1,9 @@
-package com.articreep.pocketknife;
+package com.articreep.pocketknife.features;
 
+import com.articreep.pocketknife.Pocketknife;
+import com.articreep.pocketknife.PocketknifeFeature;
+import com.articreep.pocketknife.PocketknifeSubcommand;
+import com.articreep.pocketknife.Utils;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -26,7 +30,7 @@ public class MKFeather extends PocketknifeSubcommand implements PocketknifeFeatu
     }
 
     @Override
-    boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {
             sendDescriptionMessage(sender);
             sendSyntaxMessage(sender);
@@ -92,12 +96,12 @@ public class MKFeather extends PocketknifeSubcommand implements PocketknifeFeatu
     }
 
     @Override
-    List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
         return null;
     }
 
     @Override
-    String getSyntax() {
+    public String getSyntax() {
         return "Usage: /pocketknife MKFeather <amount>";
     }
 }
