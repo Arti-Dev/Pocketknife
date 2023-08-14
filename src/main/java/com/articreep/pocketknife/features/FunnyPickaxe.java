@@ -278,7 +278,7 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
                             block.breakNaturally(new ItemStack(Material.DIRT));
                         }
                         breakBlock(captcha.get(uuid).getBlock(), player);
-                        player.sendMessage(ChatColor.GREEN + "✔");
+                        player.sendTitle(ChatColor.GREEN + "✔", "", 10, 70, 20);
                         isBreaking = false;
                         captcha.remove(uuid);
                     }, 40);
