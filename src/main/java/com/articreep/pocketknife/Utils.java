@@ -256,10 +256,10 @@ public class Utils {
         container.set(key, PersistentDataType.STRING, id);
     }
 
-    public static @Nullable String getItemID(ItemStack item) {
-        if (item == null) return null;
+    public static String getItemID(ItemStack item) {
+        if (item == null) return "";
         ItemMeta meta = item.getItemMeta();
-        if (meta == null) return null;
+        if (meta == null) return "";
 
         PersistentDataContainer container = meta.getPersistentDataContainer();
         return container.get(key, PersistentDataType.STRING);
