@@ -8,7 +8,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.StringUtil;
 import org.bukkit.util.Vector;
@@ -18,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeature, Listener, PocketknifeConfigurable {
+public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeature, PocketknifeConfigurable {
     private boolean enabled = false;
     private boolean lines = false;
     /**
