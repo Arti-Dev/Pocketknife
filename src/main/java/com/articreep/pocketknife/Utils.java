@@ -300,4 +300,18 @@ public class Utils {
 
         return new Vector((cosine * currentX - sine * currentZ), vector.getY(), (sine * currentX + cosine * currentZ));
     }
+
+    /**
+     * This calculates the angle between two vectors in degrees.
+     * @param vec1 Vector 1, head direction
+     * @param vec2 Vector 2, movement direction
+     * @return The angle in degrees.
+     */
+    public static double calculateAngle(Vector vec1, Vector vec2) {
+        if (vec2.isZero() || vec1.isZero()) return -1;
+
+        double angle = vec2.angle(vec1);
+        angle = angle * (180/Math.PI);
+        return angle;
+    }
 }
