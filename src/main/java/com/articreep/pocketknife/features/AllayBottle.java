@@ -2,7 +2,10 @@ package com.articreep.pocketknife.features;
 
 import com.articreep.pocketknife.Pocketknife;
 import com.articreep.pocketknife.PocketknifeFeature;
+import com.articreep.pocketknife.Utils;
 import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Allay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -17,6 +21,8 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.BoundingBox;
+import org.bukkit.util.Vector;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
@@ -52,6 +58,7 @@ public class AllayBottle implements PocketknifeFeature, Listener {
             ItemStack handItem = inv.getItem(event.getHand());
             if (handItem != null && handItem.getType() == Material.GLASS_BOTTLE) {
                 event.setCancelled(true);
+                player.playSound(player.getLocation(), Sound.ENTITY_ALLAY_ITEM_GIVEN, 1, 1);
                 try {
                     handItem.setAmount(handItem.getAmount()-1);
                     inv.addItem(captureAllay(allay));
@@ -67,19 +74,24 @@ public class AllayBottle implements PocketknifeFeature, Listener {
         Player player = event.getPlayer();
         if (cooldowns.remove(player)) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        Location location = event.getClickedBlock().getRelative(event.getBlockFace()).getLocation();
         ItemStack item = player.getInventory().getItem(event.getHand());
         if (item == null || item.getItemMeta() == null) return;
         PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
         if (container.has(healthKey, PersistentDataType.DOUBLE)) {
             try {
-                releaseAllay(item, location);
+                releaseAllay(item, event.getClickedBlock(), event.getBlockFace());
+                player.playSound(player.getLocation(), Sound.ENTITY_ALLAY_ITEM_GIVEN, 1, 1);
                 player.getInventory().setItem(event.getHand(), new ItemStack(Material.GLASS_BOTTLE));
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
 
         }
+    }
+
+    @EventHandler
+    public void onAllayDrink(PlayerItemConsumeEvent event) {
+        // todo drop item
     }
 
     private static NamespacedKey itemKey = new NamespacedKey(Pocketknife.getInstance(), "allayItem");
@@ -90,8 +102,9 @@ public class AllayBottle implements PocketknifeFeature, Listener {
     private ItemStack captureAllay(Allay allay) throws IOException {
         // Obtain data about the Allay
         ItemStack itemCarrying = allay.getEquipment().getItemInMainHand();
-        String name = allay.getCustomName();
-        if (name == null) name = "";
+        String itemDisplayName = getName(itemCarrying);
+        String allayName = allay.getCustomName();
+        if (allayName == null) allayName = "";
         long dupeCooldown = allay.getDuplicationCooldown();
         double health = allay.getHealth();
 
@@ -100,12 +113,15 @@ public class AllayBottle implements PocketknifeFeature, Listener {
         meta.setColor(Color.AQUA);
         meta.addCustomEffect(new PotionEffect(PotionEffectType.LEVITATION, 30*20, 0), true);
         meta.setDisplayName(ChatColor.AQUA + "Bottle of Allay");
-        meta.setLore(Arrays.asList(ChatColor.GRAY + "Name: " + name,
-                ChatColor.GRAY + "Item Carrying:" + itemCarrying.getType()));
+
+        List<String> lore = new ArrayList<>();
+        if (!allayName.isEmpty()) lore.add(ChatColor.GRAY + "Name: " + allayName);
+        lore.add(ChatColor.GRAY + "Item Carrying: " + itemDisplayName);
+        meta.setLore(lore);
 
         // Persistent data containers
         PersistentDataContainer container = meta.getPersistentDataContainer();
-        container.set(nameKey, PersistentDataType.STRING, name);
+        container.set(nameKey, PersistentDataType.STRING, allayName);
         container.set(dupeKey, PersistentDataType.LONG, dupeCooldown);
         container.set(healthKey, PersistentDataType.DOUBLE, health);
 
@@ -119,7 +135,7 @@ public class AllayBottle implements PocketknifeFeature, Listener {
         return bottle;
     }
 
-    private void releaseAllay(ItemStack item, Location location) throws IOException, ClassNotFoundException {
+    private void releaseAllay(ItemStack item, Block block, BlockFace face) throws IOException, ClassNotFoundException {
         PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
         String name = container.get(nameKey, PersistentDataType.STRING);
         Long dupeCooldown = container.get(dupeKey, PersistentDataType.LONG);
@@ -131,13 +147,23 @@ public class AllayBottle implements PocketknifeFeature, Listener {
         BukkitObjectInputStream bukkitStream = new BukkitObjectInputStream(in);
         ItemStack heldItem = (ItemStack) bukkitStream.readObject();
 
-        location.getWorld().spawn(location, Allay.class, allay -> {
+        block.getWorld().spawn(block.getLocation(), Allay.class, allay -> {
+            Utils.alignToFace(block, face, allay);
             allay.setHealth(health);
             allay.setCustomName(name);
             allay.setDuplicationCooldown(dupeCooldown);
             allay.getEquipment().setItemInMainHand(heldItem);
         });
 
+    }
+
+    private static String getName(ItemStack item) {
+        if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+            Bukkit.broadcastMessage("Display name: " + item.getItemMeta().getDisplayName());
+            return item.getItemMeta().getDisplayName();
+        } else if (item.getType() != Material.AIR) {
+            return item.getType().toString();
+        } else return ChatColor.DARK_GRAY + "none";
     }
 
 

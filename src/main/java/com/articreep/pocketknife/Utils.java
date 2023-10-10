@@ -3,6 +3,8 @@ package com.articreep.pocketknife;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -11,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
@@ -313,5 +316,26 @@ public class Utils {
         double angle = vec2.angle(vec1);
         angle = angle * (180/Math.PI);
         return angle;
+    }
+
+    /**
+     * Teleports an entity to the closest centered location to a Block's BlockFace
+     * so that the Entity's BoundingBox is tangent to the blockface.
+     * @param block Block to use
+     * @param face BlockFace to place entity on
+     * @param entity The entity
+     */
+    public static void alignToFace(Block block, BlockFace face, Entity entity) {
+        // credit trollyloki
+        Location location = block.getLocation();
+        location.add(0.5, 0.5, 0.5);
+        Vector v = face.getDirection();
+        location.add(v.clone().multiply(0.5));
+        BoundingBox box = entity.getBoundingBox();
+        Vector diag = new Vector(box.getWidthX(), box.getHeight(), box.getWidthZ()).multiply(0.5);
+        // abs because math is dumb
+        location.add(v.multiply(Math.abs(diag.dot(v))));
+        location.subtract(0, box.getHeight()/2, 0);
+        entity.teleport(location);
     }
 }
