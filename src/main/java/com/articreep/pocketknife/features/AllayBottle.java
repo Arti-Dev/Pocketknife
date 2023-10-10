@@ -171,6 +171,7 @@ public class AllayBottle implements PocketknifeFeature, Listener {
             allay.setCustomName(name);
             allay.setDuplicationCooldown(dupeCooldown);
             allay.getEquipment().setItemInMainHand(heldItem);
+            // todo set player allay will follow to this player
         });
 
     }
