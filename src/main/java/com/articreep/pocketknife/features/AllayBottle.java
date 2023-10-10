@@ -7,6 +7,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Allay;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -60,8 +61,12 @@ public class AllayBottle implements PocketknifeFeature, Listener {
                 event.setCancelled(true);
                 player.playSound(player.getLocation(), Sound.ENTITY_ALLAY_ITEM_GIVEN, 1, 1);
                 try {
-                    handItem.setAmount(handItem.getAmount()-1);
-                    inv.addItem(captureAllay(allay));
+                    if (handItem.getAmount() == 1) {
+                        inv.setItem(event.getHand(), captureAllay(allay));
+                    } else {
+                        handItem.setAmount(handItem.getAmount() - 1);
+                        inv.addItem(captureAllay(allay));
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -91,7 +96,27 @@ public class AllayBottle implements PocketknifeFeature, Listener {
 
     @EventHandler
     public void onAllayDrink(PlayerItemConsumeEvent event) {
-        // todo drop item
+        Player player = event.getPlayer();
+        ItemStack item = player.getInventory().getItem(event.getHand());
+        if (item == null || item.getItemMeta() == null) return;
+        PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
+        if (container.has(itemKey, PersistentDataType.BYTE_ARRAY)) {
+            ItemStack heldItem = new ItemStack(Material.AIR);
+            try {
+                heldItem = retrieveItem(container.get(itemKey, PersistentDataType.BYTE_ARRAY));
+            } catch (ClassNotFoundException | IOException e) {
+                e.printStackTrace();
+            }
+            ItemStack finalHeldItem = heldItem;
+
+            player.getWorld().spawn(player.getLocation(), Item.class, droppedItem -> {
+                droppedItem.setPickupDelay(20);
+                droppedItem.setItemStack(finalHeldItem);
+                droppedItem.setVelocity(player.getLocation().getDirection().multiply(0.5));
+            });
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_BURP, 1, 1);
+        }
+
     }
 
     private static NamespacedKey itemKey = new NamespacedKey(Pocketknife.getInstance(), "allayItem");
@@ -124,11 +149,7 @@ public class AllayBottle implements PocketknifeFeature, Listener {
         container.set(nameKey, PersistentDataType.STRING, allayName);
         container.set(dupeKey, PersistentDataType.LONG, dupeCooldown);
         container.set(healthKey, PersistentDataType.DOUBLE, health);
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        BukkitObjectOutputStream bukkitStream = new BukkitObjectOutputStream(out);
-        bukkitStream.writeObject(itemCarrying);
-        container.set(itemKey, PersistentDataType.BYTE_ARRAY, out.toByteArray());
+        container.set(itemKey, PersistentDataType.BYTE_ARRAY, encodeItem(itemCarrying));
 
         bottle.setItemMeta(meta);
         allay.remove();
@@ -140,12 +161,9 @@ public class AllayBottle implements PocketknifeFeature, Listener {
         String name = container.get(nameKey, PersistentDataType.STRING);
         Long dupeCooldown = container.get(dupeKey, PersistentDataType.LONG);
         Double health = container.get(healthKey, PersistentDataType.DOUBLE);
-        byte[] itemBytes = container.get(itemKey, PersistentDataType.BYTE_ARRAY);
 
-        if (itemBytes == null) throw new IllegalStateException("how is this null");
-        ByteArrayInputStream in = new ByteArrayInputStream(itemBytes);
-        BukkitObjectInputStream bukkitStream = new BukkitObjectInputStream(in);
-        ItemStack heldItem = (ItemStack) bukkitStream.readObject();
+        byte[] itemBytes = container.get(itemKey, PersistentDataType.BYTE_ARRAY);
+        ItemStack heldItem = retrieveItem(itemBytes);
 
         block.getWorld().spawn(block.getLocation(), Allay.class, allay -> {
             Utils.alignToFace(block, face, allay);
@@ -159,11 +177,24 @@ public class AllayBottle implements PocketknifeFeature, Listener {
 
     private static String getName(ItemStack item) {
         if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-            Bukkit.broadcastMessage("Display name: " + item.getItemMeta().getDisplayName());
             return item.getItemMeta().getDisplayName();
         } else if (item.getType() != Material.AIR) {
             return item.getType().toString();
         } else return ChatColor.DARK_GRAY + "none";
+    }
+
+    private static byte[] encodeItem(ItemStack item) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        BukkitObjectOutputStream bukkitStream = new BukkitObjectOutputStream(out);
+        bukkitStream.writeObject(item);
+        return out.toByteArray();
+    }
+
+    private static ItemStack retrieveItem(byte[] itemBytes) throws IOException, ClassNotFoundException {
+        if (itemBytes == null) throw new IllegalStateException("bruh itembytes is null");
+        ByteArrayInputStream in = new ByteArrayInputStream(itemBytes);
+        BukkitObjectInputStream bukkitStream = new BukkitObjectInputStream(in);
+        return (ItemStack) bukkitStream.readObject();
     }
 
 
