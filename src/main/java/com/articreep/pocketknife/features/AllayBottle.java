@@ -41,7 +41,8 @@ public class AllayBottle implements PocketknifeFeature, Listener {
         return "Allows you to place allays in a bottle";
 
         /*
-        - Allays can be shift-right clicked to trap them into a glass bottle and called "Bottle of Allay"
+        - Allays can be right clicked to trap them into a glass bottle and called "Bottle of Allay"
+            - This may be canceled by shifting
         - The item they are carrying will stay in the bottle
         - Their name will be carried over, and their duplication delay, and their health
         - Effects do not carry over (for now)
@@ -58,6 +59,7 @@ public class AllayBottle implements PocketknifeFeature, Listener {
     @EventHandler
     public void onAllayRightClick(PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
+        if (player.isSneaking()) return;
         cooldowns.add(player);
         Bukkit.getScheduler().runTask(Pocketknife.getInstance(), () -> cooldowns.remove(player));
         if (event.getRightClicked() instanceof Allay allay) {
@@ -83,6 +85,7 @@ public class AllayBottle implements PocketknifeFeature, Listener {
     @EventHandler
     public void onAllayRelease(PlayerInteractEvent event) {
         Player player = event.getPlayer();
+        if (player.isSneaking()) return;
         if (cooldowns.remove(player)) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         ItemStack item = player.getInventory().getItem(event.getHand());
