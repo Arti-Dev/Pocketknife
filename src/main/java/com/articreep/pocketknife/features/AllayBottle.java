@@ -9,6 +9,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Allay;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.memory.MemoryKey;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -22,15 +23,16 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.BoundingBox;
-import org.bukkit.util.Vector;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class AllayBottle implements PocketknifeFeature, Listener {
     private static final Set<Player> cooldowns = new HashSet<>();
@@ -44,8 +46,12 @@ public class AllayBottle implements PocketknifeFeature, Listener {
         - Their name will be carried over, and their duplication delay, and their health
         - Effects do not carry over (for now)
         - The Allay can be released by right-clicking a block
+            - If the Allay was carrying an item, it will follow the player who released the Allay
         - You can drink the Bottle of Allay which will cause you to levitate for 30 seconds
             - The item that the Allay was carrying, if any, will drop (as if you burped it)
+
+        Bugs:
+        - You can capture the allay while it's picking up items, and the items will be deleted
          */
     }
 
@@ -84,8 +90,8 @@ public class AllayBottle implements PocketknifeFeature, Listener {
         PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
         if (container.has(healthKey, PersistentDataType.DOUBLE)) {
             try {
-                releaseAllay(item, event.getClickedBlock(), event.getBlockFace());
-                player.playSound(player.getLocation(), Sound.ENTITY_ALLAY_ITEM_GIVEN, 1, 1);
+                releaseAllay(player, item, event.getClickedBlock(), event.getBlockFace());
+                player.playSound(player.getLocation(), Sound.ENTITY_ALLAY_ITEM_TAKEN, 1, 1);
                 player.getInventory().setItem(event.getHand(), new ItemStack(Material.GLASS_BOTTLE));
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
@@ -156,7 +162,7 @@ public class AllayBottle implements PocketknifeFeature, Listener {
         return bottle;
     }
 
-    private void releaseAllay(ItemStack item, Block block, BlockFace face) throws IOException, ClassNotFoundException {
+    private void releaseAllay(Player player, ItemStack item, Block block, BlockFace face) throws IOException, ClassNotFoundException {
         PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
         String name = container.get(nameKey, PersistentDataType.STRING);
         Long dupeCooldown = container.get(dupeKey, PersistentDataType.LONG);
@@ -171,7 +177,10 @@ public class AllayBottle implements PocketknifeFeature, Listener {
             allay.setCustomName(name);
             allay.setDuplicationCooldown(dupeCooldown);
             allay.getEquipment().setItemInMainHand(heldItem);
-            // todo set player allay will follow to this player
+
+            if (heldItem.getType() != Material.AIR) {
+                allay.setMemory(MemoryKey.LIKED_PLAYER, player.getUniqueId());
+            }
         });
 
     }
