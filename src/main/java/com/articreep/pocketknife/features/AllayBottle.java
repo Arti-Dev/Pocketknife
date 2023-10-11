@@ -18,6 +18,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -36,6 +37,8 @@ import java.util.Set;
 
 public class AllayBottle implements PocketknifeFeature, Listener {
     private static final Set<Player> cooldowns = new HashSet<>();
+    // todo allow this variable to be changed by config
+    private static int maxAllayRecursion = 3;
     @Override
     public String getDescription() {
         return "Allows you to place allays in a bottle";
@@ -67,15 +70,22 @@ public class AllayBottle implements PocketknifeFeature, Listener {
             ItemStack handItem = inv.getItem(event.getHand());
             if (handItem != null && handItem.getType() == Material.GLASS_BOTTLE) {
                 event.setCancelled(true);
-                player.playSound(player.getLocation(), Sound.ENTITY_ALLAY_ITEM_GIVEN, 1, 1);
                 try {
+                    // Check what the Allay is holding and whether it has too many subitems
+                    ItemStack itemHeld = allay.getEquipment().getItemInMainHand();
+                    if (listSubItems(itemHeld).size() >= maxAllayRecursion) {
+                        player.sendMessage(ChatColor.RED + "Have you ever considered the amount of " +
+                                "allays and bottles you're sticking inside a single item?");
+                        return;
+                    }
                     if (handItem.getAmount() == 1) {
                         inv.setItem(event.getHand(), captureAllay(allay));
                     } else {
                         handItem.setAmount(handItem.getAmount() - 1);
                         inv.addItem(captureAllay(allay));
                     }
-                } catch (IOException e) {
+                    player.playSound(player.getLocation(), Sound.ENTITY_ALLAY_ITEM_GIVEN, 1, 1);
+                } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
             }
@@ -133,10 +143,9 @@ public class AllayBottle implements PocketknifeFeature, Listener {
     private static NamespacedKey dupeKey = new NamespacedKey(Pocketknife.getInstance(), "allayDupeCooldown");
     private static NamespacedKey healthKey = new NamespacedKey(Pocketknife.getInstance(), "allayHealthKey");
 
-    private ItemStack captureAllay(Allay allay) throws IOException {
+    private ItemStack captureAllay(Allay allay) throws IOException, ClassNotFoundException {
         // Obtain data about the Allay
         ItemStack itemCarrying = allay.getEquipment().getItemInMainHand();
-        String itemDisplayName = getName(itemCarrying);
         String allayName = allay.getCustomName();
         if (allayName == null) allayName = "";
         long dupeCooldown = allay.getDuplicationCooldown();
@@ -150,7 +159,11 @@ public class AllayBottle implements PocketknifeFeature, Listener {
 
         List<String> lore = new ArrayList<>();
         if (!allayName.isEmpty()) lore.add(ChatColor.GRAY + "Name: " + allayName);
-        lore.add(ChatColor.GRAY + "Item Carrying: " + itemDisplayName);
+        lore.add(ChatColor.GRAY + "Item Holding: " + getName(itemCarrying));
+        // if allay is holding a bottle of allay, show what that allay is holding
+        for (ItemStack item : listSubItems(itemCarrying)) {
+            lore.add(ChatColor.GRAY + "..holding " + getName(item));
+        }
         meta.setLore(lore);
 
         // Persistent data containers
@@ -193,7 +206,7 @@ public class AllayBottle implements PocketknifeFeature, Listener {
             return item.getItemMeta().getDisplayName();
         } else if (item.getType() != Material.AIR) {
             return item.getType().toString();
-        } else return ChatColor.DARK_GRAY + "none";
+        } else return ChatColor.DARK_GRAY + "nothing";
     }
 
     private static byte[] encodeItem(ItemStack item) throws IOException {
@@ -208,6 +221,26 @@ public class AllayBottle implements PocketknifeFeature, Listener {
         ByteArrayInputStream in = new ByteArrayInputStream(itemBytes);
         BukkitObjectInputStream bukkitStream = new BukkitObjectInputStream(in);
         return (ItemStack) bukkitStream.readObject();
+    }
+
+    /**
+     * Retrieves all subitems in a bottle of an allay.
+     * e.g. passing a bottle of an allay holding a bottle of an allay holding a grass block would return:
+     * (bottle of allay, grass block)
+     * the original item passed in is not added to the list
+     * @param item Item to get subitems of. Should be a bottle of allay
+     * @return list of subitems
+     */
+    private static List<ItemStack> listSubItems(ItemStack item) throws IOException, ClassNotFoundException {
+        List<ItemStack> items = new ArrayList<>();
+        ItemStack subItem = item;
+        while (subItem.hasItemMeta() && subItem.getItemMeta().getPersistentDataContainer()
+                .has(itemKey, PersistentDataType.BYTE_ARRAY)) {
+            PersistentDataContainer subContainer = subItem.getItemMeta().getPersistentDataContainer();
+            subItem = retrieveItem(subContainer.get(itemKey, PersistentDataType.BYTE_ARRAY));
+            items.add(subItem);
+        }
+        return items;
     }
 
 
