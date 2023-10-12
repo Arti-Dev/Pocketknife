@@ -18,7 +18,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -64,7 +63,6 @@ public class AllayBottle implements PocketknifeFeature, Listener {
         Player player = event.getPlayer();
         if (player.isSneaking()) return;
         cooldowns.add(player);
-        Bukkit.getScheduler().runTask(Pocketknife.getInstance(), () -> cooldowns.remove(player));
         if (event.getRightClicked() instanceof Allay allay) {
             PlayerInventory inv = player.getInventory();
             ItemStack handItem = inv.getItem(event.getHand());
