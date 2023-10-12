@@ -37,7 +37,7 @@ import java.util.Set;
 public class AllayBottle implements PocketknifeFeature, Listener {
     private static final Set<Player> cooldowns = new HashSet<>();
     // todo allow this variable to be changed by config
-    private static int maxAllayRecursion = 3;
+    private static int maxAllayRecursion = 2;
     @Override
     public String getDescription() {
         return "Allows you to place allays in a bottle";
@@ -71,7 +71,7 @@ public class AllayBottle implements PocketknifeFeature, Listener {
                 try {
                     // Check what the Allay is holding and whether it has too many subitems
                     ItemStack itemHeld = allay.getEquipment().getItemInMainHand();
-                    if (listSubItems(itemHeld).size() >= maxAllayRecursion) {
+                    if (listSubItems(itemHeld).size() > maxAllayRecursion) {
                         player.sendMessage(ChatColor.RED + "Have you ever considered the amount of " +
                                 "allays and bottles you're sticking inside a single item?");
                         return;
