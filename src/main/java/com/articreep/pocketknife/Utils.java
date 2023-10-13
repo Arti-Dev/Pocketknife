@@ -326,15 +326,21 @@ public class Utils {
      * @param entity The entity
      */
     public static void alignToFace(Block block, BlockFace face, Entity entity) {
-        // credit trollyloki
+        // credit trollyloki for math ideas
         Location location = block.getLocation();
+        // center up the location
         location.add(0.5, 0.5, 0.5);
+        // move location to the center of the blockface via addition
         Vector v = face.getDirection();
         location.add(v.clone().multiply(0.5));
+        // create vector representing the dimensions of the entity's bounding box
         BoundingBox box = entity.getBoundingBox();
         Vector diag = new Vector(box.getWidthX(), box.getHeight(), box.getWidthZ()).multiply(0.5);
-        // abs because math is dumb
+        // dot product the bounding box vector with the direction
+        // take the absolute value to prevent the location from ending up inside the block
         location.add(v.multiply(Math.abs(diag.dot(v))));
+        // the entity's location point is at the bottom of their boundingbox.
+        // therefore the location needs to be shifted down by half their boundingbox
         location.subtract(0, box.getHeight()/2, 0);
         entity.teleport(location);
     }
