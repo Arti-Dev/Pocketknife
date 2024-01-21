@@ -46,7 +46,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
             } catch (InvocationTargetException | InstantiationException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
-                Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "Couldn't load " + clazz.getName()
+                Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Couldn't load " + clazz.getName()
                         + "because it is inaccessible. Perhaps the constructor is private? (IllegalAccessException)");
             } catch (IllegalArgumentException e) {
                 Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Couldn't load " + clazz.getName()
