@@ -18,6 +18,7 @@ public class SplashDecoratedPot implements Listener {
     @EventHandler
     public void onPotBreak(ProjectileHitEvent event) {
         Block block = event.getHitBlock();
+        if (block == null) return;
         if (block.getState() instanceof DecoratedPot pot) {
             if (!canBreakDecoratedPot(event.getEntity())) return;
             handleItemInPot(pot);
