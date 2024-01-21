@@ -39,8 +39,18 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         Therefore, all that needs to be done in each individual class is to implement Listener or PocketknifeSubcommand and that's it! */
         for (Class<?> clazz : reflections.getSubTypesOf(Object.class)) {
             if (clazz == this.getClass()) continue;
-            if (!registerClass(clazz)) {
-                Bukkit.getConsoleSender().sendMessage(clazz.getName() + " had nothing to register!");
+            try {
+                if (!registerClass(clazz)) {
+                    Bukkit.getConsoleSender().sendMessage(clazz.getName() + " had nothing to register!");
+                }
+            } catch (InvocationTargetException | InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "Couldn't load " + clazz.getName()
+                        + "because it is inaccessible. Perhaps the constructor is private? (IllegalAccessException)");
+            } catch (IllegalArgumentException e) {
+                Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "Couldn't load " + clazz.getName()
+                        + " since it has inconsistent constructor arguments (IllegalArgumentException)");
             }
         }
 
@@ -84,7 +94,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
      * @param targetClass The target class
      * @return Whether anything was registered
      */
-    private boolean registerClass(Class<?> targetClass) {
+    private boolean registerClass(Class<?> targetClass) throws InvocationTargetException, InstantiationException, IllegalAccessException {
         // Will be garbage collected if not used
         Object classObj;
 
@@ -93,12 +103,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         // Obligatory null check
         if (ctor == null) return false;
 
-        // TODO Not sure if I should be using try-catch here
-        try {
-            classObj = ctor.newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            return false;
-        }
+        classObj = ctor.newInstance();
 
         boolean registered = false;
         if (classObj instanceof PocketknifeSubcommand) {
