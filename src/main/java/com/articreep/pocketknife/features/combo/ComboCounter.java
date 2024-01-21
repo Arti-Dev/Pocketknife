@@ -3,11 +3,15 @@ package com.articreep.pocketknife.features.combo;
 import com.articreep.pocketknife.Pocketknife;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.ChatColor;
-import org.bukkit.Sound;
+import org.bukkit.*;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+
+import java.util.Random;
 
 public class ComboCounter {
     private final Player player;
@@ -24,6 +28,8 @@ public class ComboCounter {
     private int ticksBetweenCombo = 0;
     private int rhythmCombo = 0;
     private BukkitTask rhythmComboFX = null;
+    private final NamespacedKey bossBarKey;
+    private BossBar bossBar;
 
     /**
      * Constructs a new Combo Counter with bound player and expiry time (in ticks)
@@ -33,6 +39,8 @@ public class ComboCounter {
     public ComboCounter(Player player, int expiry) {
         this.player = player;
         this.expiry = expiry;
+        this.bossBarKey = new NamespacedKey(Pocketknife.getInstance(),
+                player.getUniqueId() + "_Bossbar");
     }
 
     public void incrementCombo() {
@@ -51,11 +59,16 @@ public class ComboCounter {
         }
 
         if (combo > 10 && rhythmCombo >= 4) {
-            playComboSFX();
+            if (bossBar == null) {
+                bossBar = Bukkit.createBossBar(bossBarKey, ChatColor.BOLD + "" +
+                        ChatColor.DARK_PURPLE + rhythmCombo + " RHYTHM COMBO", BarColor.BLUE, BarStyle.SOLID);
+                bossBar.addPlayer(player);
+                bossBar.setProgress(1);
+            }
+            playComboFX();
         }
 
-        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(
-                ChatColor.GRAY + "" + combo + "x " + ChatColor.DARK_PURPLE + rhythmCombo + "x"));
+        sendActionBar(combo);
         resetInactiveTicks();
     }
     private void resetCombo() {
@@ -70,6 +83,11 @@ public class ComboCounter {
     }
 
     private void resetRhythmCombo() {
+        if (bossBar != null) {
+            bossBar.removeAll();
+            Bukkit.removeBossBar(bossBarKey);
+            bossBar = null;
+        }
         rhythmCombo = 0;
         if (rhythmComboFX != null) {
             rhythmComboFX.cancel();
@@ -97,14 +115,40 @@ public class ComboCounter {
         }.runTaskTimer(Pocketknife.getInstance(), 0, 1);
     }
 
-    private void playComboSFX() {
+
+    private void playComboFX() {
         player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASEDRUM, 1, 1);
         player.playSound(player, Sound.BLOCK_BAMBOO_STEP, 1, 1);
+        updateBossBar(BarColor.BLUE);
+        spawnNoteParticle();
         rhythmComboFX = new BukkitRunnable() {
             @Override
             public void run() {
+                updateBossBar(BarColor.RED);
                 player.playSound(player, Sound.BLOCK_NOTE_BLOCK_HAT, 1, 1);
             }
         }.runTaskLater(Pocketknife.getInstance(), ticksBetweenCombo/2);
+    }
+
+    private void sendActionBar(int combo) {
+        TextComponent component;
+        if (combo <= 1) return;
+        else if (combo <= 4) component = new TextComponent(ChatColor.GRAY + "" + combo + " Combo");
+        else if (combo <= 7) component = new TextComponent(ChatColor.YELLOW + "" + combo + " Combo");
+        else if (combo <= 10) component = new TextComponent(ChatColor.GOLD + "" + combo + " COMBO");
+        else component = new TextComponent(ChatColor.AQUA + "" + ChatColor.BOLD + combo + " COMBO!!!");
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, component);
+    }
+
+    private void updateBossBar(BarColor color) {
+        bossBar.setColor(color);
+        bossBar.setTitle(ChatColor.BOLD + "" +
+                ChatColor.DARK_PURPLE + rhythmCombo + " RHYTHM COMBO");
+    }
+
+    private void spawnNoteParticle() {
+        Random random = new Random();
+        player.getWorld().spawnParticle(Particle.NOTE,
+                player.getLocation().add(0, 1, 0), 3, 0.2, 0.2, 0.2);
     }
 }
