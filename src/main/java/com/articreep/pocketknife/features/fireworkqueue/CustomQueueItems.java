@@ -17,7 +17,7 @@ public class CustomQueueItems {
     }
 
     public static ItemStack longRangeFirework(int count) {
-        return createFirework(count, ChatColor.BLUE + "Long-range Firework", 15, 20, 2, Color.RED);
+        return createFirework(count, ChatColor.RED + "Long-range Firework", 15, 13, 2, Color.RED);
     }
     public static ItemStack createFirework(int count, String name, double damage, int range, int quickCharge, Color color) {
         ItemStack firework = new ItemStack(Material.FIREWORK_ROCKET, count);
