@@ -1,5 +1,6 @@
 package com.articreep.pocketknife.features.fireworkqueue;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -39,7 +40,18 @@ public class ItemQueue {
         }
     }
 
-    public void pop() {
+    public boolean consumeActiveItem() {
+        if (activeItem == null || lastResortActive) return false;
+        int amount = activeItem.getAmount();
+        if (amount-1 <= 0) {
+            pop();
+            return true;
+        }
+        else activeItem.setAmount(amount-1);
+        return false;
+    }
+
+    private void pop() {
         // if there is nothing left in queue
         if (visibleQueue.isEmpty()) {
             // Use hold item if available

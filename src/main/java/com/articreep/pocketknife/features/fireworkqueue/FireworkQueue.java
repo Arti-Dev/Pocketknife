@@ -8,13 +8,12 @@ import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.BlockDisplay;
-import org.bukkit.entity.Firework;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -27,10 +26,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class FireworkQueue extends PocketknifeSubcommand implements Listener {
     // todo clarify when to use ItemQueue.pop() and not removeFromQueue
@@ -39,41 +35,83 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
 
     @EventHandler
     public void onFireworkExplode(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Firework firework)) return;
-        if (!(firework.getShooter() instanceof Player player)) return;
+        if (!(event.getDamager() instanceof Projectile proj)) return;
+        if (!isFirework(proj)) return;
+        if (!(proj.getShooter() instanceof Player player)) return;
+
         Combo.getComboCounter(player).incrementCombo();
 
-        // disable players being able to hit themselves with their own fireworks
-        if (event.getEntity().equals(player)) event.setCancelled(true);
-
-        if (firework.getPersistentDataContainer().has(CustomQueueItems.damageKey)) {
-            PersistentDataContainer container = firework.getPersistentDataContainer();
-            double damage = container.get(CustomQueueItems.damageKey, PersistentDataType.DOUBLE);
-            event.setDamage(damage);
+        if (proj.getPersistentDataContainer().has(CustomQueueItems.damageKey)) {
+            if (isFirework(proj)) {
+                // disable players being able to hit themselves with their own fireworks
+                if (event.getEntity().equals(player)) event.setCancelled(true);
+                PersistentDataContainer container = proj.getPersistentDataContainer();
+                double damage = container.get(CustomQueueItems.damageKey, PersistentDataType.DOUBLE);
+                event.setDamage(damage);
+            }
         }
     }
 
+    HashSet<Player> recentlyFired = new HashSet<>();
+
     @EventHandler
     public void onFireworkFire(ProjectileLaunchEvent event) {
-        if (!(event.getEntity() instanceof Firework firework)) return;
-        if (!(firework.getShooter() instanceof Player player)) return;
+        Projectile proj = event.getEntity();
+        if (!isArrow(proj) && !isFirework(proj)) return;
+        if (!(proj.getShooter() instanceof Player player)) return;
         if (enabledPlayers.containsKey(player.getUniqueId())) {
             // Apply properties of the firework fired
             ItemQueue queue = enabledPlayers.get(player.getUniqueId());
             ItemStack item = queue.getActiveItem();
             if (!item.hasItemMeta()) return;
-
             PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
+
             int range = container.getOrDefault(CustomQueueItems.rangeKey, PersistentDataType.INTEGER, 20);
             double damage = container.getOrDefault(CustomQueueItems.damageKey, PersistentDataType.DOUBLE, 7d);
 
-            firework.setMaxLife(range);
-            firework.getPersistentDataContainer().set(CustomQueueItems.damageKey, PersistentDataType.DOUBLE, damage);
-
-            // Check to see if firework rocket count has run out
-            if (player.getInventory().getItemInOffHand().getType() == Material.AIR) {
-                removeFromQueue(player);
+            if (isFirework(proj)) {
+                if (recentlyFired.contains(player)) return;
+                Firework firework = (Firework) proj;
+                firework.setMaxLife(range);
+                firework.getPersistentDataContainer().set(CustomQueueItems.damageKey, PersistentDataType.DOUBLE, damage);
+            } else if (isArrow(proj)) {
+                Arrow arrow = (Arrow) proj;
+                arrow.getPersistentDataContainer().set(CustomQueueItems.damageKey, PersistentDataType.DOUBLE, damage);
             }
+
+            consumeItem(player);
+
+            // Prevent instances where multishot would consume three fireworks instead of one
+            recentlyFired.add(player);
+            Bukkit.getScheduler().runTask(Pocketknife.getInstance(), () -> recentlyFired.remove(player));
+        }
+    }
+
+    @EventHandler
+    public void onArrowCollide(ProjectileHitEvent event) {
+        Projectile proj = event.getEntity();
+        if (!isArrow(proj)) return;
+        if (!(proj.getShooter() instanceof Player player)) return;
+        if (proj.getPersistentDataContainer().has(CustomQueueItems.damageKey)) {
+            PersistentDataContainer container = proj.getPersistentDataContainer();
+            double damage = container.getOrDefault(CustomQueueItems.damageKey, PersistentDataType.DOUBLE, 7d);
+            // create radius explosion
+            int radius = 5;
+            List<Entity> entities = proj.getNearbyEntities(radius, radius, radius);
+            for (Entity entity : entities) {
+                if (entity instanceof LivingEntity) ((LivingEntity) entity).damage(damage);
+            }
+            proj.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, proj.getLocation(), 1);
+        }
+
+    }
+
+    @EventHandler
+    public void onSlotChange(PlayerItemHeldEvent event) {
+        if (!enabledPlayers.containsKey(event.getPlayer().getUniqueId())) return;
+        if (event.getNewSlot() != 0) {
+            event.setCancelled(true);
+            event.getPlayer().getInventory().setHeldItemSlot(0);
         }
     }
 
@@ -133,11 +171,9 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
             player.sendMessage("Queue enabled");
             ItemQueue queue = new ItemQueue();
             queue.add(CustomQueueItems.longRangeFirework(2));
+            queue.add(CustomQueueItems.explosiveArrow(5));
             queue.add(CustomQueueItems.shortRangeFirework(6));
-            queue.add(CustomQueueItems.longRangeFirework(2));
-            queue.add(CustomQueueItems.shortRangeFirework(6));
-            queue.add(CustomQueueItems.longRangeFirework(2));
-            queue.add(CustomQueueItems.shortRangeFirework(3));
+            queue.add(CustomQueueItems.mediumRangeMultiShot(4));
             enabledPlayers.put(uuid, queue);
             updateInventory(player);
         }
@@ -156,15 +192,27 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
         ItemStack holdItem = queue.getHoldItem();
         ArrayList<ItemStack> visibleQueue = queue.getVisibleQueue();
 
-        if (activeItem.getType() == Material.FIREWORK_ROCKET && activeItem.hasItemMeta()) {
-            ItemStack crossbow = new ItemStack(Material.CROSSBOW);
-            PersistentDataContainer container = activeItem.getItemMeta().getPersistentDataContainer();
-            if (container.has(CustomQueueItems.quickChargeKey)) {
-                crossbow.addUnsafeEnchantment(Enchantment.QUICK_CHARGE, container.get(CustomQueueItems.quickChargeKey, PersistentDataType.INTEGER));
-            }
-            inventory.setItem(0, crossbow);
-            inventory.setItemInOffHand(activeItem);
-        } else inventory.setItem(0, activeItem);
+        if (!activeItem.hasItemMeta()) inventory.setItem(0, activeItem);
+        else {
+            if (activeItem.getType() == Material.FIREWORK_ROCKET) {
+                ItemStack crossbow = new ItemStack(Material.CROSSBOW);
+                PersistentDataContainer container = activeItem.getItemMeta().getPersistentDataContainer();
+                if (container.has(CustomQueueItems.quickChargeKey)) {
+                    crossbow.addUnsafeEnchantment(Enchantment.QUICK_CHARGE,
+                            container.get(CustomQueueItems.quickChargeKey, PersistentDataType.INTEGER));
+                }
+                if (container.has(CustomQueueItems.multiShotKey)) {
+                    crossbow.addUnsafeEnchantment(Enchantment.MULTISHOT, 1);
+                }
+                inventory.setItem(0, crossbow);
+                inventory.setItemInOffHand(activeItem);
+            } else if (activeItem.getType() == Material.ARROW) {
+                ItemStack bow = new ItemStack(Material.BOW);
+                bow.addEnchantment(Enchantment.ARROW_FIRE, 1);
+                inventory.setItem(0, bow);
+                inventory.setItemInOffHand(activeItem);
+            } else inventory.setItem(0, activeItem);
+        }
 
         for (int i = 1; i < visibleQueue.size()+1; i++) {
             inventory.setItem(i, visibleQueue.get(i-1));
@@ -190,36 +238,34 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
         }
     }
 
-    private void removeFromQueue(Player player) {
+    private void consumeItem(Player player) {
         UUID uuid = player.getUniqueId();
         if (enabledPlayers.containsKey(uuid)) {
             ItemQueue queue = enabledPlayers.get(uuid);
-            queue.pop();
-            String name = queue.getActiveItem().getItemMeta().getDisplayName();
-            player.sendTitle(name, "", 0, 1, 9);
-            updateInventory(player);
+            if (queue.consumeActiveItem()) {
+                String name = queue.getActiveItem().getItemMeta().getDisplayName();
+                player.sendTitle(name, "", 0, 1, 19);
+                updateInventory(player);
+            }
         }
     }
 
     @EventHandler
     public void onPlayerDrop(PlayerDropItemEvent event) {
-        removeFromQueue(event.getPlayer());
+        consumeItem(event.getPlayer());
     }
 
     @EventHandler
     public void onPlayerPickup(EntityPickupItemEvent event) {
-        event.setCancelled(true);
-        event.getItem().remove();
-
-//        if (event.getEntity() instanceof Player player) {
-//            UUID uuid = player.getUniqueId();
-//            if (enabledPlayers.containsKey(uuid)) {
-//                event.setCancelled(true);
-//                event.getItem().remove();
-//                player.playSound(player, Sound.ENTITY_ITEM_PICKUP, 1, 1);
-//                addToQueue(player, event.getItem().getItemStack());
-//            }
-//        }
+        if (event.getEntity() instanceof Player player) {
+            UUID uuid = player.getUniqueId();
+            if (enabledPlayers.containsKey(uuid)) {
+                event.setCancelled(true);
+                event.getItem().remove();
+                addToQueue(player, event.getItem().getItemStack());
+                player.playSound(player, Sound.ENTITY_ITEM_PICKUP, 1, 1);
+            }
+        }
     }
 
     @Override
@@ -230,5 +276,13 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
     @Override
     public String getSyntax() {
         return null;
+    }
+
+    private static boolean isFirework(Entity entity) {
+        return entity instanceof Firework;
+    }
+
+    private static boolean isArrow(Entity entity) {
+        return entity instanceof Arrow;
     }
 }
