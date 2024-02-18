@@ -82,7 +82,7 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
         Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
         // if the player's inventory isn't empty and they're not enabled
-        if (!Utils.inventoryEmptyIgnoreArmor(player.getInventory()) && !enabledPlayers.containsKey(uuid)) {
+        if (!player.getInventory().isEmpty() && !enabledPlayers.containsKey(uuid)) {
             player.sendMessage(ChatColor.RED + "Your inventory needs to be empty in order to turn this on!");
         } else if (enabledPlayers.containsKey(uuid)) {
             player.sendMessage("Queue disabled");
