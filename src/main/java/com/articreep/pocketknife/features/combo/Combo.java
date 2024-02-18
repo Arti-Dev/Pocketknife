@@ -47,15 +47,12 @@ public class Combo extends PocketknifeSubcommand implements PocketknifeFeature, 
     public void onDiamondBreak(BlockBreakEvent event) {
         if (!enabled) return;
         Player player = event.getPlayer();
-//        Material material = event.getBlock().getType();
-//        if (material == Material.DIAMOND_ORE || material == Material.DEEPSLATE_DIAMOND_ORE) {
-            if (comboMap.containsKey(player)) comboMap.get(player).incrementCombo();
-            else {
-                ComboCounter counter = new ComboCounter(player, 60);
-                counter.incrementCombo();
-                comboMap.put(player, counter);
-            }
-//        }
+        if (comboMap.containsKey(player)) comboMap.get(player).incrementCombo();
+        else {
+            ComboCounter counter = new ComboCounter(player, 60);
+            counter.incrementCombo();
+            comboMap.put(player, counter);
+        }
     }
 
     @EventHandler
@@ -74,6 +71,20 @@ public class Combo extends PocketknifeSubcommand implements PocketknifeFeature, 
     @EventHandler
     public void onDC(PlayerQuitEvent event) {
         comboMap.remove(event.getPlayer());
+    }
+
+    public static void registerCombo(Player player) {
+        if (hasRegisteredCombo(player)) return;
+        comboMap.put(player, new ComboCounter(player, 60));
+    }
+
+    public static boolean hasRegisteredCombo(Player player) {
+        return comboMap.containsKey(player);
+    }
+
+    public static ComboCounter getComboCounter(Player player) {
+        if (!hasRegisteredCombo(player)) registerCombo(player);
+        return comboMap.get(player);
     }
 
 

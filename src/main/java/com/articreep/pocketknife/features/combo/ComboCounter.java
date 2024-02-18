@@ -44,6 +44,7 @@ public class ComboCounter {
     }
 
     public void incrementCombo() {
+        // todo make it so that hitting multiple mobs in one tick only increments once
         currentSound.interrupt();
         currentSound = ComboSound.createComboSound(++combo);
         currentSound.play(player);
