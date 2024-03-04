@@ -48,6 +48,18 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
                 PersistentDataContainer container = proj.getPersistentDataContainer();
                 double damage = container.get(CustomQueueItems.damageKey, PersistentDataType.DOUBLE);
                 event.setDamage(damage);
+
+                Random random = new Random();
+                ItemStack item;
+                item = switch (random.nextInt(4)) {
+                    case 0 -> CustomQueueItems.longRangeFirework(1);
+                    case 1 -> CustomQueueItems.explosiveArrow(1);
+                    case 2 -> CustomQueueItems.shortRangeFirework(3);
+                    case 3 -> CustomQueueItems.mediumRangeMultiShot(4);
+                    default -> CustomQueueItems.shortRangeFirework(1);
+                };
+                addToQueue(player, item);
+
             }
         }
     }
@@ -99,7 +111,7 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
             int radius = 5;
             List<Entity> entities = proj.getNearbyEntities(radius, radius, radius);
             for (Entity entity : entities) {
-                if (entity instanceof LivingEntity) ((LivingEntity) entity).damage(damage);
+                if (entity instanceof LivingEntity && !entity.equals(player)) ((LivingEntity) entity).damage(damage);
             }
             proj.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, proj.getLocation(), 1);
         }
@@ -171,7 +183,7 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
             player.sendMessage("Queue enabled");
             ItemQueue queue = new ItemQueue();
             queue.add(CustomQueueItems.longRangeFirework(2));
-            queue.add(CustomQueueItems.explosiveArrow(5));
+            queue.add(CustomQueueItems.explosiveArrow(2));
             queue.add(CustomQueueItems.shortRangeFirework(6));
             queue.add(CustomQueueItems.mediumRangeMultiShot(4));
             enabledPlayers.put(uuid, queue);
@@ -262,7 +274,7 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
             if (enabledPlayers.containsKey(uuid)) {
                 event.setCancelled(true);
                 event.getItem().remove();
-                addToQueue(player, event.getItem().getItemStack());
+//                addToQueue(player, event.getItem().getItemStack());
                 player.playSound(player, Sound.ENTITY_ITEM_PICKUP, 1, 1);
             }
         }

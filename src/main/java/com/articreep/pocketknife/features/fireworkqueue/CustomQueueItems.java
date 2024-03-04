@@ -33,7 +33,7 @@ public class CustomQueueItems {
         ItemMeta meta = arrow.getItemMeta();
         meta.setDisplayName(ChatColor.DARK_RED + "Explosive Arrow");
         PersistentDataContainer container = meta.getPersistentDataContainer();
-        container.set(damageKey, PersistentDataType.DOUBLE, 20d);
+        container.set(damageKey, PersistentDataType.DOUBLE, 10d);
         arrow.setItemMeta(meta);
         return arrow;
     }
