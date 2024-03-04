@@ -118,36 +118,44 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
 
         classObj = ctor.newInstance();
 
+
+        // Attempt to identify its type
         boolean registered = false;
-        if (classObj instanceof PocketknifeSubcommand) {
-            // Register command into my hashmap
-            pocketknifeSubcommands.add(targetClass.getSimpleName());
-            Bukkit.getConsoleSender().sendMessage("Registered command from " + targetClass.getSimpleName());
+        if (classObj instanceof PocketknifeFeature feature) {
+            // todo feature.enabled = ???
+            if (feature.isEnabled() && feature instanceof Listener listener) registerListener(listener);
+            if (feature instanceof PocketknifeSubcommand command) registerSubcommand(command);
+            featureMap.put(targetClass.getSimpleName(), feature);
             registered = true;
-        }
-        if (classObj instanceof Listener) {
-            // Register listener
-            getServer().getPluginManager().registerEvents((Listener) classObj, this);
-            Bukkit.getConsoleSender().sendMessage("Registered listener from " + targetClass.getSimpleName());
-            registered = true;
-        }
-        if (classObj instanceof PocketknifeConfigurable) {
-            // Add instance to our set
-            configurableClasses.add((PocketknifeConfigurable) classObj);
-            Bukkit.getConsoleSender().sendMessage("Registered configuration from " + targetClass.getSimpleName());
+
+        } else if (classObj instanceof Listener listener) {
+            registerListener(listener);
+            listenerMap.put(targetClass.getSimpleName(), listener);
             registered = true;
         }
 
-        if (registered) {
-            if (classObj instanceof PocketknifeFeature feature) {
-                featureMap.put(targetClass.getSimpleName(), feature);
-            } else {
-                Listener listener = (Listener) classObj;
-                listenerMap.put(targetClass.getSimpleName(), listener);
-            }
+        if (classObj instanceof PocketknifeConfigurable configurable) {
+            // Add instance to our set
+            registerConfigurable(configurable);
+            registered = true;
         }
 
         return registered;
+    }
+
+    private void registerListener(Listener listener) {
+        getServer().getPluginManager().registerEvents(listener, this);
+        Bukkit.getConsoleSender().sendMessage("Registered listener from " + listener.getClass().getSimpleName());
+    }
+
+    private void registerSubcommand(PocketknifeSubcommand command) {
+        pocketknifeSubcommands.add(command.getClass().getSimpleName());
+        Bukkit.getConsoleSender().sendMessage("Registered command from " + command.getClass().getSimpleName());
+    }
+
+    private void registerConfigurable(PocketknifeConfigurable configurable) {
+        configurableClasses.add(configurable);
+        Bukkit.getConsoleSender().sendMessage("Registered configuration from " + configurable.getClass().getSimpleName());
     }
 
     /**
