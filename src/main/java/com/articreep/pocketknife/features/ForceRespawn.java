@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ForceRespawn extends PocketknifeSubcommand {
+    public ForceRespawn() {
+        this.setConsoleCanUse(true);
+    }
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) {

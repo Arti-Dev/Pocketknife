@@ -10,6 +10,8 @@ import java.util.List;
  * This exists purely to differentiate from CommandExecutor.
  */
 public abstract class PocketknifeSubcommand implements PocketknifeFeature {
+    private boolean consoleCanUse = false;
+
     /**
      * Custom subcommand that follows /pocketknife CLASS_NAME (params)
      * @param sender Sender of the command
@@ -30,6 +32,11 @@ public abstract class PocketknifeSubcommand implements PocketknifeFeature {
      */
     public abstract List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args);
 
+    /**
+     * Message that explains syntax of this command to the player.
+     * e.g. Usage: /pocketknife BlockList <blocks>
+     * @return String explaining syntax
+     */
     public abstract String getSyntax();
 
     /**
@@ -44,6 +51,22 @@ public abstract class PocketknifeSubcommand implements PocketknifeFeature {
      */
     public void sendSyntaxMessage(CommandSender sender) {
         sender.sendMessage(ChatColor.RED + getSyntax());
+    }
+
+    /**
+     * Sets whether the console or non-player may use this command.
+     * @param canUse Whether the console can use this command
+     */
+    protected void setConsoleCanUse(boolean canUse) {
+        consoleCanUse = canUse;
+    }
+
+    /**
+     * Gets whether this command can be used by the console.
+     * @return Whether this command can be used by the console
+     */
+    public boolean canConsoleUse() {
+        return consoleCanUse;
     }
 
 }

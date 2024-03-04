@@ -161,10 +161,6 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
             sender.sendMessage(ChatColor.RED + "Usage: /pocketknife <feature> <args>");
             return true;
         }
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("Get off the console");
-            return true;
-        }
 
         // Special arguments
 
@@ -180,6 +176,11 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
 
         if (pocketCommand == null) {
             sender.sendMessage(ChatColor.RED + "Couldn't find that feature.");
+            return true;
+        }
+
+        if (!(sender instanceof Player) && !pocketCommand.canConsoleUse()) {
+            sender.sendMessage("You must be a player to use this command!");
             return true;
         }
 
