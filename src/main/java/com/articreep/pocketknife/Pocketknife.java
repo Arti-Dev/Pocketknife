@@ -25,7 +25,15 @@ import java.util.*;
 public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompleter {
     private static Pocketknife instance;
     private static Reflections reflections;
-    private static final HashMap<String, PocketknifeSubcommand> commandClassNameMap = new HashMap<>();
+    /** Stores all Pocketknife Feature instances and their string equivalent. */
+    private static final HashMap<String, PocketknifeFeature> featureMap = new HashMap<>();
+    /** Exclusively stores instances of Listener objects that aren't PocketknifeFeatures
+     * Sometimes I get lazy
+     */
+    private static final HashMap<String, Listener> listenerMap = new HashMap<>();
+
+    // HashSets here are for caching purposes only
+    private static final HashSet<String> pocketknifeSubcommands = new HashSet<>();
     private static final HashSet<PocketknifeConfigurable> configurableClasses = new HashSet<>();
     public void onEnable() {
         instance = this;
@@ -108,7 +116,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         boolean registered = false;
         if (classObj instanceof PocketknifeSubcommand) {
             // Register command into my hashmap
-            commandClassNameMap.put(targetClass.getSimpleName(), (PocketknifeSubcommand) classObj);
+            pocketknifeSubcommands.add(targetClass.getSimpleName());
             Bukkit.getConsoleSender().sendMessage("Registered command from " + targetClass.getSimpleName());
             registered = true;
         }
@@ -124,7 +132,21 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
             Bukkit.getConsoleSender().sendMessage("Registered configuration from " + targetClass.getSimpleName());
             registered = true;
         }
+
+        if (registered) {
+            if (classObj instanceof PocketknifeFeature feature) {
+                featureMap.put(targetClass.getSimpleName(), feature);
+            } else {
+                Listener listener = (Listener) classObj;
+                listenerMap.put(targetClass.getSimpleName(), listener);
+            }
+        }
+
         return registered;
+    }
+
+    private void unregisterClass(Class<?> clazz) {
+
     }
 
     /**
@@ -172,7 +194,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
             return true;
         }
 
-        PocketknifeSubcommand pocketCommand = getPocketKnifeCommand(args[0]);
+        PocketknifeSubcommand pocketCommand = getSubcommand(args[0]);
 
         if (pocketCommand == null) {
             sender.sendMessage(ChatColor.RED + "Couldn't find that feature.");
@@ -192,10 +214,18 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         return true;
     }
 
-    private PocketknifeSubcommand getPocketKnifeCommand(String query) {
+    private PocketknifeFeature getFeature(String query) {
+        for (String str : featureMap.keySet()) {
+            if (str.equalsIgnoreCase(query)) return featureMap.get(str);
+        }
+        return null;
+    }
+
+    private PocketknifeSubcommand getSubcommand(String query) {
         // Check against commandClassNameMap.keySet()
-        for (String str : commandClassNameMap.keySet()) {
-            if (str.equalsIgnoreCase(query)) return commandClassNameMap.get(str);
+        for (String str : featureMap.keySet()) {
+            if (str.equalsIgnoreCase(query) && featureMap.get(str) instanceof PocketknifeSubcommand command)
+                return command;
         }
         return null;
     }
@@ -204,14 +234,14 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
-            ArrayList<String> strings = new ArrayList<>(commandClassNameMap.keySet());
+            ArrayList<String> strings = new ArrayList<>(pocketknifeSubcommands);
             strings.add("reload");
             StringUtil.copyPartialMatches(args[0], strings, completions);
         }
 
         // Up to another class to tabcomplete
         if (args.length > 1) {
-            PocketknifeSubcommand pocketCommand = getPocketKnifeCommand(args[0]);
+            PocketknifeSubcommand pocketCommand = getSubcommand(args[0]);
 
             if (pocketCommand == null) {
                 return completions;
