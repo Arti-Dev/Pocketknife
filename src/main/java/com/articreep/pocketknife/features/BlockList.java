@@ -1,7 +1,6 @@
 package com.articreep.pocketknife.features;
 
 import com.articreep.pocketknife.Pocketknife;
-import com.articreep.pocketknife.PocketknifeFeature;
 import com.articreep.pocketknife.PocketknifeSubcommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -21,7 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-public class BlockList extends PocketknifeSubcommand implements PocketknifeFeature, Listener {
+public class BlockList extends PocketknifeSubcommand implements Listener {
 
     private final static List<Material> allBlocks = new ArrayList<>();
     private final static HashMap<Player, BlockListData> sessions = new HashMap<>();
@@ -47,6 +46,11 @@ public class BlockList extends PocketknifeSubcommand implements PocketknifeFeatu
     @Override
     public String getDescription() {
         return "For creating a list of every holdable block item in Minecraft for a challenge";
+    }
+
+    @Override
+    protected void onDisable() {
+
     }
 
     @Override

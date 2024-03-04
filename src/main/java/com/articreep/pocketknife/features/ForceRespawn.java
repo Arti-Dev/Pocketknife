@@ -53,4 +53,9 @@ public class ForceRespawn extends PocketknifeSubcommand {
     public String getDescription() {
         return "Forcefully respawns any player that is on the \"You Died\" screen.";
     }
+
+    @Override
+    protected void onDisable() {
+        // nothing
+    }
 }

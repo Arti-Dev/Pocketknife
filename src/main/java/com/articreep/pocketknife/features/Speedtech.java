@@ -17,8 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeature, PocketknifeConfigurable {
-    private boolean enabled = false;
+public class Speedtech extends PocketknifeSubcommand implements PocketknifeConfigurable {
     private boolean lines = false;
     /**
      * If this variable is something other than -1, a Runnable is already running.
@@ -38,33 +37,34 @@ public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeatu
     }
 
     @Override
+    protected void onDisable() {
+        stopTracking();
+    }
+
+    @Override
+    protected void onEnable() {
+        trackLocations();
+    }
+
+    @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player player) {
             if (args.length == 0) {
                 sendDescriptionMessage(sender);
                 sendSyntaxMessage(sender);
             } else {
-                switch (args[0]) {
-                    case "toggle" -> {
-                        enabled = !enabled;
-                        sender.sendMessage(ChatColor.GREEN + "Speedtech toggled " + Utils.booleanStatus(enabled));
-                        if (enabled) trackLocations();
-                        else stopTracking();
+                if (args[0].equals("lines")) {
+                    lines = !lines;
+                    sender.sendMessage(ChatColor.GREEN + "Lines toggled " + Utils.booleanStatus(lines));
+                    if (lines) {
+                        player.sendMessage(ChatColor.YELLOW + "Speedtech was toggled ON for you");
+                        trackLocations();
+                        enabled = true;
+                        player.sendMessage(ChatColor.GREEN + "GREEN is the direction where you are looking at");
+                        player.sendMessage(ChatColor.RED + "RED is the direction where you are moving");
                     }
-
-                    case "lines" -> {
-                        lines = !lines;
-                        sender.sendMessage(ChatColor.GREEN + "Lines toggled " + Utils.booleanStatus(lines));
-                        if (lines) {
-                            player.sendMessage(ChatColor.YELLOW + "Speedtech was toggled ON for you");
-                            trackLocations();
-                            enabled = true;
-                            player.sendMessage(ChatColor.GREEN + "GREEN is the direction where you are looking at");
-                            player.sendMessage(ChatColor.RED + "RED is the direction where you are moving");
-                        }
-                    }
-
-                    default -> sendSyntaxMessage(sender);
+                } else {
+                    sendSyntaxMessage(sender);
                 }
                 Pocketknife.getInstance().getConfig().set("speedtech", enabled);
                 Pocketknife.getInstance().saveConfig();
@@ -176,6 +176,9 @@ public class Speedtech extends PocketknifeSubcommand implements PocketknifeFeatu
         if (taskID == -1) return;
         Bukkit.getScheduler().cancelTask(taskID);
         taskID = -1;
+        previousAngles.clear();
+        previousLocations.clear();
+        previousMovementDir.clear();
     }
 
     private final Map<Player, Float> initialSpeeds = new HashMap<>();

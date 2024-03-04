@@ -54,71 +54,67 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
 
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player player) {
-            if (args.length == 0) {
-                // todo I want to abstract this in the abstract class
-                sendDescriptionMessage(player);
-                sendSyntaxMessage(player);
-            } else {
-                if (args[0].equalsIgnoreCase("confirm") && args.length == 2) {
-                    // Player might have clicked a confirm button
-                    // Second one must be a UUID
-                    UUID uuid;
-                    try {
-                        uuid = UUID.fromString(args[1]);
-                    } catch (IllegalArgumentException e) {
-                        player.sendMessage(ChatColor.RED + "Something went wrong. Impressive.");
-                        return true;
-                    }
-
-                    // Check mode
-                    switch (mode) {
-                        case 0 -> player.sendMessage("Mode 0 does not require command confirmation");
-                        case 1 -> {
-                            if (!confirmBreakBlock(player, uuid))
-                                player.sendMessage(ChatColor.RED + "This confirmation has expired!");
-                        }
-                        case 2 -> {
-                            // Is this UUID on a captcha?
-                            if (!captcha.containsKey(uuid)) {
-                                try {
-                                    generateCaptcha(uuid, player);
-                                } catch (NoSuchMethodException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            } else {
-                                breakCaptcha(player, uuid);
-                            }
-                        }
-                    }
-                } else if (args[0].equalsIgnoreCase("mode")) {
-                    int number;
-                    try {
-                        number = Integer.parseInt(args[1]);
-                    } catch (NumberFormatException e) {
-                        player.sendMessage(ChatColor.RED + "That's not an integer.");
-                        return true;
-                    }
-                    if (number >= 0 && number <= 2) {
-                        mode = number;
-                        player.sendMessage(ChatColor.GREEN + "Set the mode to " + mode);
-                    }
-                    else player.sendMessage(ChatColor.RED + "Mode must be between 0 and 2");
-                } else {
-                    // The first argument might be a number
-                    int amount;
-                    try {
-                        amount = Integer.parseInt(args[0]);
-                    } catch (NumberFormatException e) {
-                        player.sendMessage(ChatColor.RED + "That's not an integer.");
-                        return true;
-                    }
-                    givePickaxe(amount, player);
-                }
-            }
-
+        Player player = (Player) sender;
+        if (args.length == 0) {
+            // todo I want to abstract this in the abstract class
+            sendDescriptionMessage(player);
+            sendSyntaxMessage(player);
         } else {
-            sender.sendMessage("You're not a player.");
+            if (args[0].equalsIgnoreCase("confirm") && args.length == 2) {
+                // Player might have clicked a confirm button
+                // Second one must be a UUID
+                UUID uuid;
+                try {
+                    uuid = UUID.fromString(args[1]);
+                } catch (IllegalArgumentException e) {
+                    player.sendMessage(ChatColor.RED + "Something went wrong. Impressive.");
+                    return true;
+                }
+
+                // Check mode
+                switch (mode) {
+                    case 0 -> player.sendMessage("Mode 0 does not require command confirmation");
+                    case 1 -> {
+                        if (!confirmBreakBlock(player, uuid))
+                            player.sendMessage(ChatColor.RED + "This confirmation has expired!");
+                    }
+                    case 2 -> {
+                        // Is this UUID on a captcha?
+                        if (!captcha.containsKey(uuid)) {
+                            try {
+                                generateCaptcha(uuid, player);
+                            } catch (NoSuchMethodException e) {
+                                throw new RuntimeException(e);
+                            }
+                        } else {
+                            breakCaptcha(player, uuid);
+                        }
+                    }
+                }
+            } else if (args[0].equalsIgnoreCase("mode")) {
+                int number;
+                try {
+                    number = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
+                    player.sendMessage(ChatColor.RED + "That's not an integer.");
+                    return true;
+                }
+                if (number >= 0 && number <= 2) {
+                    mode = number;
+                    player.sendMessage(ChatColor.GREEN + "Set the mode to " + mode);
+                }
+                else player.sendMessage(ChatColor.RED + "Mode must be between 0 and 2");
+            } else {
+                // The first argument might be a number
+                int amount;
+                try {
+                    amount = Integer.parseInt(args[0]);
+                } catch (NumberFormatException e) {
+                    player.sendMessage(ChatColor.RED + "That's not an integer.");
+                    return true;
+                }
+                givePickaxe(amount, player);
+            }
         }
         return true;
     }
@@ -395,5 +391,13 @@ public class FunnyPickaxe extends PocketknifeSubcommand implements Listener {
     @Override
     public String getDescription() {
         return "Meant to be a joke";
+    }
+
+    @Override
+    protected void onDisable() {
+        confirmations.clear();
+        confirmationsNoCommands.clear();
+        captcha.clear();
+        isBreaking = false;
     }
 }

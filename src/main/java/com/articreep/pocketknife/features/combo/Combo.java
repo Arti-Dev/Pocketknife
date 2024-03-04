@@ -1,9 +1,6 @@
 package com.articreep.pocketknife.features.combo;
 
 import com.articreep.pocketknife.PocketknifeFeature;
-import com.articreep.pocketknife.PocketknifeSubcommand;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,35 +9,17 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.HashMap;
-import java.util.List;
 
-public class Combo extends PocketknifeSubcommand implements PocketknifeFeature, Listener {
+public class Combo extends PocketknifeFeature implements Listener {
     private static final HashMap<Player, ComboCounter> comboMap = new HashMap<>();
-    private static boolean enabled = true;
     @Override
     public String getDescription() {
         return "Combo cosmetic system.";
     }
 
     @Override
-    public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
-        enabled = !enabled;
-        if (!enabled) {
-            sender.sendMessage("Combo is now disabled");
-        } else {
-            sender.sendMessage("Combo is now enabled");
-        }
-        return true;
-    }
-
-    @Override
-    public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        return null;
-    }
-
-    @Override
-    public String getSyntax() {
-        return "Usage: /pocketknife Combo";
+    protected void onDisable() {
+        comboMap.clear();
     }
 
     @EventHandler

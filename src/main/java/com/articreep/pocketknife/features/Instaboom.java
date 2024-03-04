@@ -91,4 +91,9 @@ public class Instaboom extends PocketknifeSubcommand implements Listener {
     public String getDescription() {
         return "Recreation of Instaboom from the Hypixel Pit";
     }
+
+    @Override
+    protected void onDisable() {
+        // nothing
+    }
 }

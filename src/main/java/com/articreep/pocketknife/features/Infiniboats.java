@@ -1,7 +1,6 @@
 package com.articreep.pocketknife.features;
 
 import com.articreep.pocketknife.Pocketknife;
-import com.articreep.pocketknife.PocketknifeFeature;
 import com.articreep.pocketknife.PocketknifeSubcommand;
 import com.articreep.pocketknife.Utils;
 import org.bukkit.Bukkit;
@@ -20,11 +19,16 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Arrays;
 import java.util.List;
 
-public class Infiniboats extends PocketknifeSubcommand implements PocketknifeFeature, Listener {
+public class Infiniboats extends PocketknifeSubcommand implements Listener {
 
     @Override
     public String getDescription() {
         return "Infinitely place boats that expire after a few seconds";
+    }
+
+    @Override
+    protected void onDisable() {
+        // nothing. there are some runnables that will continue to run but that's okay
     }
 
     @Override

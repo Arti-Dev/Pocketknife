@@ -2,11 +2,9 @@ package com.articreep.pocketknife.features;
 
 import com.articreep.pocketknife.Pocketknife;
 import com.articreep.pocketknife.PocketknifeConfigurable;
-import com.articreep.pocketknife.PocketknifeSubcommand;
+import com.articreep.pocketknife.PocketknifeFeature;
 import com.articreep.pocketknife.Utils;
 import org.bukkit.*;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -17,12 +15,13 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.util.StringUtil;
 import org.bukkit.util.Vector;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Set;
+import java.util.WeakHashMap;
 
-public class DiamondHit extends PocketknifeSubcommand implements Listener, PocketknifeConfigurable {
+public class DiamondHit extends PocketknifeFeature implements Listener, PocketknifeConfigurable {
 
     // WeakHashMaps automatically remove garbage-collected members
     private static final Set<Item> droppedXPSet = Collections.newSetFromMap(new WeakHashMap<>());
@@ -74,7 +73,7 @@ public class DiamondHit extends PocketknifeSubcommand implements Listener, Pocke
             event.setCancelled(true);
             droppedXPSet.remove(event.getItem());
             event.getItem().remove();
-            player.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "XP!" + ChatColor.RESET + "" + ChatColor.AQUA + " +30 XP " + ChatColor.GRAY + "from opponent armor piece");
+            player.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "XP!" + ChatColor.RESET + ChatColor.AQUA + " +30 XP " + ChatColor.GRAY + "from opponent armor piece");
             player.playSound(player, Sound.ENTITY_ARROW_HIT_PLAYER, 1, 1);
         }
     }
@@ -86,45 +85,12 @@ public class DiamondHit extends PocketknifeSubcommand implements Listener, Pocke
     }
 
     @Override
-    public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player) {
-            if (args.length == 0) {
-                sendDescriptionMessage(sender);
-                sendSyntaxMessage(sender);
-            } else {
-                if (args[0].equalsIgnoreCase("toggle")) {
-                    enabled = !enabled;
-                    sender.sendMessage(ChatColor.RED + "DiamondHit toggled " +
-                            Utils.booleanStatus(enabled));
-                } else {
-                    sendSyntaxMessage(sender);
-                }
-                Pocketknife.getInstance().getConfig().set("diamondhit", enabled);
-                Pocketknife.getInstance().saveConfig();
-            }
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        List<String> completions = new ArrayList<>();
-        if (args.length == 1) {
-            ArrayList<String> strings = new ArrayList<>();
-            strings.add("toggle");
-            StringUtil.copyPartialMatches(args[0], strings, completions);
-        }
-        return completions;
-    }
-
-    @Override
-    public String getSyntax() {
-        return "Usage: /pocketknife DiamondHit toggle";
-    }
-
-    @Override
     public String getDescription() {
         return ChatColor.AQUA + "Players drop XP when struck if wearing diamond armor.";
+    }
+
+    @Override
+    protected void onDisable() {
+        droppedXPSet.clear();
     }
 }

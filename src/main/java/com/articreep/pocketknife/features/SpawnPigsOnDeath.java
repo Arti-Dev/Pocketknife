@@ -2,13 +2,9 @@ package com.articreep.pocketknife.features;
 
 import com.articreep.pocketknife.Pocketknife;
 import com.articreep.pocketknife.PocketknifeConfigurable;
-import com.articreep.pocketknife.PocketknifeSubcommand;
-import com.articreep.pocketknife.Utils;
+import com.articreep.pocketknife.PocketknifeFeature;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -16,53 +12,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.StringUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class SpawnPigsOnDeath extends PocketknifeSubcommand implements Listener, PocketknifeConfigurable {
-	boolean enabled;
+public class SpawnPigsOnDeath extends PocketknifeFeature implements Listener, PocketknifeConfigurable {
 	Pocketknife plugin;
 	public SpawnPigsOnDeath() {
 		plugin = Pocketknife.getInstance();
 		enabled = plugin.getConfig().getBoolean("spawnpigsondeath");
-	}
-	@Override
-	public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (sender instanceof Player) {
-			if (args.length == 0) {
-				sendDescriptionMessage(sender);
-				sendSyntaxMessage(sender);
-			} else {
-				if (args[0].equalsIgnoreCase("toggle")) {
-					enabled = !enabled;
-					sender.sendMessage(ChatColor.GREEN + "SpawnPigsOnDeath toggled " + Utils.booleanStatus(enabled));
-				} else {
-					sendSyntaxMessage(sender);
-				}
-				plugin.getConfig().set("spawnpigsondeath", enabled);
-				plugin.saveConfig();
-			}
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
-		List<String> completions = new ArrayList<>();
-		if (args.length == 1) {
-			ArrayList<String> strings = new ArrayList<>();
-			strings.add("toggle");
-			StringUtil.copyPartialMatches(args[0], strings, completions);
-		}
-		return completions;
-	}
-
-	@Override
-    public String getSyntax() {
-		return "Usage: /pocketknife SpawnPigsOnDeath <on/off>";
 	}
 
 	@Override
@@ -91,5 +46,10 @@ public class SpawnPigsOnDeath extends PocketknifeSubcommand implements Listener,
 	@Override
 	public String getDescription() {
 		return "All this feature does is spawn ten pigs when someone dies.";
+	}
+
+	@Override
+	protected void onDisable() {
+		// nothing
 	}
 }

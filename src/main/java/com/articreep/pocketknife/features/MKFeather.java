@@ -1,7 +1,6 @@
 package com.articreep.pocketknife.features;
 
 import com.articreep.pocketknife.Pocketknife;
-import com.articreep.pocketknife.PocketknifeFeature;
 import com.articreep.pocketknife.PocketknifeSubcommand;
 import com.articreep.pocketknife.Utils;
 import org.bukkit.*;
@@ -23,10 +22,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class MKFeather extends PocketknifeSubcommand implements PocketknifeFeature, Listener {
+public class MKFeather extends PocketknifeSubcommand implements Listener {
     @Override
     public String getDescription() {
         return "Replica of Feathers from Mario Kart 8";
+    }
+
+    @Override
+    protected void onDisable() {
+        // nothing
     }
 
     @Override

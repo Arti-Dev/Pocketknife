@@ -83,4 +83,9 @@ public class HoeOfNoTilling extends PocketknifeSubcommand implements Listener {
 	public String getDescription() {
 		return "A hoe that untills farmland.";
 	}
+
+	@Override
+	protected void onDisable() {
+		// nothing
+	}
 }

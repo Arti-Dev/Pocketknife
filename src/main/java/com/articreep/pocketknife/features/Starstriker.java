@@ -28,9 +28,8 @@ public class Starstriker extends PocketknifeSubcommand {
         }
 
         player.playSound(player.getLocation(), Sound.MUSIC_DISC_MELLOHI, 1000, 1);
-        Bukkit.getScheduler().runTaskLater(Pocketknife.getInstance(), () -> {
-            player.teleport(new Location(world, 0.5, 116, -5.5));
-        }, 13);
+        Bukkit.getScheduler().runTaskLater(Pocketknife.getInstance(), () ->
+                player.teleport(new Location(world, 0.5, 116, -5.5)), 13);
         new BukkitRunnable() {
             int i = 0;
             int diff = 2;
@@ -76,5 +75,10 @@ public class Starstriker extends PocketknifeSubcommand {
     @Override
     public String getDescription() {
         return "Special effect used in the Pit Day 2023 video.";
+    }
+
+    @Override
+    protected void onDisable() {
+        // nothing
     }
 }

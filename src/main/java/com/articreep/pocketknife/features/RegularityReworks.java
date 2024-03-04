@@ -42,6 +42,12 @@ public class RegularityReworks extends PocketknifeSubcommand implements Listener
         return "Regularity reworks in practice, except on latest version. Choose an option (1-5) to obtain a pair of pants. All bonus damage is +75%.";
     }
 
+    @Override
+    protected void onDisable() {
+        playersEmpowered.clear();
+        playersOnCooldown.clear();
+    }
+
     @EventHandler
     public void onHit(EntityDamageByEntityEvent event) {
         if (event.isCancelled()) return;

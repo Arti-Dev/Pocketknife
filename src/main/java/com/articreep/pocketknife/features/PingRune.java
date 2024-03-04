@@ -1,25 +1,21 @@
 package com.articreep.pocketknife.features;
 
-import com.articreep.pocketknife.*;
+import com.articreep.pocketknife.Pocketknife;
+import com.articreep.pocketknife.PocketknifeConfigurable;
+import com.articreep.pocketknife.PocketknifeFeature;
+import com.articreep.pocketknife.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.util.StringUtil;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class PingRune extends PocketknifeSubcommand implements PocketknifeFeature, Listener, PocketknifeConfigurable {
-    private boolean enabled = false;
+public class PingRune extends PocketknifeFeature implements Listener, PocketknifeConfigurable {
     @Override
     public String getDescription() {
         return "Runes are cosmetic items that can be applied to items on Hypixel Skyblock. " +
@@ -27,37 +23,8 @@ public class PingRune extends PocketknifeSubcommand implements PocketknifeFeatur
     }
 
     @Override
-    public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length == 0) {
-            sendDescriptionMessage(sender);
-            sendSyntaxMessage(sender);
-        } else {
-            if (args[0].equals("toggle")) {
-                enabled = !enabled;
-                sender.sendMessage(ChatColor.GREEN + "PingRune toggled " + Utils.booleanStatus(enabled));
-            } else {
-                sendSyntaxMessage(sender);
-            }
-            Pocketknife.getInstance().getConfig().set("pingrune", enabled);
-            Pocketknife.getInstance().saveConfig();
-        }
-        return true;
-    }
-
-    @Override
-    public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        List<String> completions = new ArrayList<>();
-        if (args.length == 1) {
-            ArrayList<String> strings = new ArrayList<>();
-            strings.add("toggle");
-            StringUtil.copyPartialMatches(args[0], strings, completions);
-        }
-        return completions;
-    }
-
-    @Override
-    public String getSyntax() {
-        return "Usage: /pocketknife PingRune toggle";
+    protected void onDisable() {
+        // nothing
     }
 
     @EventHandler

@@ -1,13 +1,10 @@
 package com.articreep.pocketknife.features;
 
 import com.articreep.pocketknife.Pocketknife;
-import com.articreep.pocketknife.PocketknifeSubcommand;
+import com.articreep.pocketknife.PocketknifeFeature;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -17,11 +14,9 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
-import java.util.List;
 
-public class PVPDebug extends PocketknifeSubcommand implements Listener {
+public class PVPDebug extends PocketknifeFeature implements Listener {
     Pocketknife plugin;
-    private static boolean enabled = false;
     private int tickCount = 0;
     private BukkitTask task;
     private final HashMap<Player, Integer> ticksSinceLastHit = new HashMap<>();
@@ -35,31 +30,16 @@ public class PVPDebug extends PocketknifeSubcommand implements Listener {
         return "Debug command for some PVP related things";
     }
 
-    @Override
-    public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
-        enabled = (!enabled);
-        if (enabled) {
-            // Start runnable
-            task = Bukkit.getScheduler().runTaskTimer(plugin, () -> tickCount += 1,
-        0, 1);
-            sender.sendMessage(ChatColor.GREEN + "PVPDebug enabled");
-        } else {
-            task.cancel();
-            task = null;
-            ticksSinceLastHit.clear();
-            sender.sendMessage(ChatColor.RED + "PVPDebug disabled");
-        }
-        return true;
-    }
 
     @Override
-    public List<String> tabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        return null;
+    protected void onEnable() {
+        task = Bukkit.getScheduler().runTaskTimer(plugin, () -> tickCount += 1, 0, 1);
     }
-
     @Override
-    public String getSyntax() {
-        return "Usage: /pocketknife PVPDebug";
+    protected void onDisable() {
+        task.cancel();
+        task = null;
+        ticksSinceLastHit.clear();
     }
 
     @EventHandler
@@ -104,9 +84,5 @@ public class PVPDebug extends PocketknifeSubcommand implements Listener {
                 ChatColor.WHITE + " blocks away");
         victim.sendMessage(damager.getName() + " hit you from " + ChatColor.GREEN + formatter.format(distance) +
                 ChatColor.WHITE + " blocks away");
-    }
-
-    public static boolean isEnabled() {
-        return enabled;
     }
 }

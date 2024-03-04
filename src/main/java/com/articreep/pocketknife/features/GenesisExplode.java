@@ -111,4 +111,9 @@ public class GenesisExplode extends PocketknifeSubcommand implements Pocketknife
     public String getDescription() {
         return "Explodes the Genesis map. Used for the Pit Day 2022 video.";
     }
+
+    @Override
+    protected void onDisable() {
+        // nothing
+    }
 }

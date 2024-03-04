@@ -2,7 +2,6 @@ package com.articreep.pocketknife.features.fireworkqueue;
 
 import com.articreep.pocketknife.Pocketknife;
 import com.articreep.pocketknife.PocketknifeSubcommand;
-import com.articreep.pocketknife.Utils;
 import com.articreep.pocketknife.features.combo.Combo;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -32,6 +31,7 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
     // todo clarify when to use ItemQueue.pop() and not removeFromQueue
     // todo this code is too long smh
     protected static HashMap<UUID, ItemQueue> enabledPlayers = new HashMap<>();
+    static HashMap<UUID, BukkitTask> activeIndicators = new HashMap<>();
 
     @EventHandler
     public void onFireworkExplode(EntityDamageByEntityEvent event) {
@@ -126,8 +126,6 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
             event.getPlayer().getInventory().setHeldItemSlot(0);
         }
     }
-
-    static HashMap<UUID, BukkitTask> activeIndicators = new HashMap<>();
     public void onItemChange(Player player, ItemStack activeItem) {
         if (activeItem.getType() == Material.FIREWORK_ROCKET) {
             if (!activeIndicators.containsKey(player.getUniqueId())) {
@@ -166,6 +164,12 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
     @Override
     public String getDescription() {
         return "Enables \"queue\" mode where you can only use items in the order that they arrive.";
+    }
+
+    @Override
+    protected void onDisable() {
+        enabledPlayers.clear();
+        activeIndicators.clear();
     }
 
     @Override

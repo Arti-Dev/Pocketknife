@@ -34,7 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class AllayBottle implements PocketknifeFeature, Listener {
+public class AllayBottle extends PocketknifeFeature implements Listener {
     private static final Set<Player> cooldowns = new HashSet<>();
     // todo allow this variable to be changed by config
     private static int maxAllayRecursion = 2;
@@ -56,6 +56,11 @@ public class AllayBottle implements PocketknifeFeature, Listener {
         Bugs:
         - You can capture the allay while it's picking up items, and the items will be deleted
          */
+    }
+
+    @Override
+    protected void onDisable() {
+
     }
 
     @EventHandler
@@ -137,10 +142,10 @@ public class AllayBottle implements PocketknifeFeature, Listener {
 
     }
 
-    private static NamespacedKey itemKey = new NamespacedKey(Pocketknife.getInstance(), "allayItem");
-    private static NamespacedKey nameKey = new NamespacedKey(Pocketknife.getInstance(), "allayName");
-    private static NamespacedKey dupeKey = new NamespacedKey(Pocketknife.getInstance(), "allayDupeCooldown");
-    private static NamespacedKey healthKey = new NamespacedKey(Pocketknife.getInstance(), "allayHealthKey");
+    private static final NamespacedKey itemKey = new NamespacedKey(Pocketknife.getInstance(), "allayItem");
+    private static final NamespacedKey nameKey = new NamespacedKey(Pocketknife.getInstance(), "allayName");
+    private static final NamespacedKey dupeKey = new NamespacedKey(Pocketknife.getInstance(), "allayDupeCooldown");
+    private static final NamespacedKey healthKey = new NamespacedKey(Pocketknife.getInstance(), "allayHealthKey");
 
     private ItemStack captureAllay(Allay allay) throws IOException, ClassNotFoundException {
         // Obtain data about the Allay

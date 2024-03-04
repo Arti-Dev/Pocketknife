@@ -78,4 +78,9 @@ public class SendUp extends PocketknifeSubcommand {
     public String getDescription() {
         return "Launches the targeted player into the sky.";
     }
+
+    @Override
+    protected void onDisable() {
+        // nothing
+    }
 }
