@@ -7,6 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.StringUtil;
@@ -35,6 +36,22 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
     // HashSets here are for caching purposes only
     private static final HashSet<String> pocketknifeSubcommands = new HashSet<>();
     private static final HashSet<PocketknifeConfigurable> configurableClasses = new HashSet<>();
+
+    /**
+     * Initializes Reflections library for me.
+     * I don't know how it works, but it works
+     * pulled this from here: <a href="https://stackoverflow.com/questions/520328/can-you-find-all-classes-in-a-package-using-reflection">...</a>
+     */
+    private void initReflections() {
+        List<ClassLoader> classLoadersList = new LinkedList<>();
+        classLoadersList.add(ClasspathHelper.contextClassLoader());
+        classLoadersList.add(ClasspathHelper.staticClassLoader());
+
+        reflections = new Reflections(new ConfigurationBuilder()
+                .setScanners(new SubTypesScanner(false /* don't exclude Object.class */), new ResourcesScanner())
+                .setUrls(ClasspathHelper.forClassLoader(classLoadersList.toArray(new ClassLoader[0])))
+                .filterInputsBy(new FilterBuilder().include(FilterBuilder.prefix("com.articreep.pocketknife"))));
+    }
     public void onEnable() {
         instance = this;
 
@@ -70,20 +87,8 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "Pocketknife (testing plugin) enabled");
     }
 
-    /**
-     * Initializes Reflections library for me.
-     * i don't know how it works, but it works
-     * pulled this from here: <a href="https://stackoverflow.com/questions/520328/can-you-find-all-classes-in-a-package-using-reflection">...</a>
-     */
-    private void initReflections() {
-        List<ClassLoader> classLoadersList = new LinkedList<>();
-        classLoadersList.add(ClasspathHelper.contextClassLoader());
-        classLoadersList.add(ClasspathHelper.staticClassLoader());
-
-        reflections = new Reflections(new ConfigurationBuilder()
-                .setScanners(new SubTypesScanner(false /* don't exclude Object.class */), new ResourcesScanner())
-                .setUrls(ClasspathHelper.forClassLoader(classLoadersList.toArray(new ClassLoader[0])))
-                .filterInputsBy(new FilterBuilder().include(FilterBuilder.prefix("com.articreep.pocketknife"))));
+    public void onDisable() {
+        Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "Pocketknife (testing plugin) disabled");
     }
 
     /**
@@ -145,10 +150,6 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         return registered;
     }
 
-    private void unregisterClass(Class<?> clazz) {
-
-    }
-
     /**
      * Looks for one of two constructors: a default constructor or one that has a single parameter (FileConfiguration).
      * The constructor with the single parameter takes priority.
@@ -169,12 +170,45 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         return ctor;
     }
 
-    public void onDisable() {
-        Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "Pocketknife (testing plugin) disabled");
+    private PocketknifeFeature getFeature(String query) {
+        for (String str : featureMap.keySet()) {
+            if (str.equalsIgnoreCase(query)) return featureMap.get(str);
+        }
+        return null;
     }
 
-    public static Pocketknife getInstance() {
-        return instance;
+    private PocketknifeSubcommand getSubcommand(String query) {
+        for (String str : featureMap.keySet()) {
+            if (str.equalsIgnoreCase(query) && featureMap.get(str) instanceof PocketknifeSubcommand command)
+                return command;
+        }
+        return null;
+    }
+
+    private Listener getListener(String query) {
+        for (String str : listenerMap.keySet()) {
+            if (str.equalsIgnoreCase(query)) {
+                return listenerMap.get(query);
+            }
+        }
+        return null;
+    }
+
+    // todo in the future i might think about garbage collecting the feature instances to disable them to save memory
+    private void disableFeature(PocketknifeFeature feature) {
+        if (feature instanceof Listener listener) unregisterListener(listener);
+        feature.onDisable();
+        feature.enabled = false;
+    }
+
+    private void enableFeature(PocketknifeFeature feature) {
+        if (feature instanceof Listener listener) getServer().getPluginManager().registerEvents(listener, this);
+        feature.onEnable();
+        feature.enabled = true;
+    }
+
+    private void unregisterListener(Listener listener) {
+        HandlerList.unregisterAll(listener);
     }
 
     @Override
@@ -194,6 +228,28 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
             return true;
         }
 
+        // Toggle
+        if (args[0].equalsIgnoreCase("toggle")) {
+            PocketknifeFeature pocketFeature = getFeature(args[1]);
+            if (pocketFeature != null) {
+                if (pocketFeature.isEnabled()) {
+                    disableFeature(pocketFeature);
+                    sender.sendMessage(ChatColor.RED + pocketFeature.getClass().getSimpleName() + " disabled");
+                } else {
+                    enableFeature(pocketFeature);
+                    sender.sendMessage(ChatColor.GREEN + pocketFeature.getClass().getSimpleName() + " enabled");
+                }
+            } else if (getListener(args[1]) != null) {
+                sender.sendMessage(ChatColor.RED + "Toggling listeners is not supported yet");
+                // todo support regular listeners
+            } else {
+                sender.sendMessage(ChatColor.RED + "Couldn't find that feature.");
+            }
+            return true;
+        }
+
+        // Run a command
+
         PocketknifeSubcommand pocketCommand = getSubcommand(args[0]);
 
         if (pocketCommand == null) {
@@ -206,6 +262,12 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
             return true;
         }
 
+        if (!pocketCommand.isEnabled()) {
+            sender.sendMessage(ChatColor.RED + "This feature is currently disabled!");
+            sender.sendMessage(ChatColor.GRAY + "Enable it with /pocketknife toggle <feature>");
+            return true;
+        }
+
         boolean success = pocketCommand.runCommand(sender, command, label, Utils.removeFirstArg(args));
         if (!success) {
             sender.sendMessage(ChatColor.RED + "Something went wrong when running the command.");
@@ -214,33 +276,23 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         return true;
     }
 
-    private PocketknifeFeature getFeature(String query) {
-        for (String str : featureMap.keySet()) {
-            if (str.equalsIgnoreCase(query)) return featureMap.get(str);
-        }
-        return null;
-    }
-
-    private PocketknifeSubcommand getSubcommand(String query) {
-        // Check against commandClassNameMap.keySet()
-        for (String str : featureMap.keySet()) {
-            if (str.equalsIgnoreCase(query) && featureMap.get(str) instanceof PocketknifeSubcommand command)
-                return command;
-        }
-        return null;
-    }
-
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
         List<String> completions = new ArrayList<>();
         if (args.length == 1) {
             ArrayList<String> strings = new ArrayList<>(pocketknifeSubcommands);
             strings.add("reload");
+            strings.add("toggle");
             StringUtil.copyPartialMatches(args[0], strings, completions);
         }
 
+        else if (args.length > 1 && args[0].equalsIgnoreCase("toggle")) {
+            ArrayList<String> strings = new ArrayList<>(featureMap.keySet());
+            strings.addAll(listenerMap.keySet());
+            StringUtil.copyPartialMatches(args[1], strings, completions);
+        }
         // Up to another class to tabcomplete
-        if (args.length > 1) {
+        else if (args.length > 1) {
             PocketknifeSubcommand pocketCommand = getSubcommand(args[0]);
 
             if (pocketCommand == null) {
@@ -252,6 +304,10 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         }
 
         return completions;
+    }
+
+    public static Pocketknife getInstance() {
+        return instance;
     }
 
 }

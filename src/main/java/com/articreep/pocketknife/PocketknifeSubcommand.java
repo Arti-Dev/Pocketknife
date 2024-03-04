@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * This exists purely to differentiate from CommandExecutor.
  */
-public abstract class PocketknifeSubcommand implements PocketknifeFeature {
+public abstract class PocketknifeSubcommand extends PocketknifeFeature {
     private boolean consoleCanUse = false;
 
     /**
