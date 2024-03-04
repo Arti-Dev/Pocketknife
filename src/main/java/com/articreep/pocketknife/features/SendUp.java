@@ -16,34 +16,36 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SendUp extends PocketknifeSubcommand {
+    public SendUp() {
+        this.setConsoleCanUse(true);
+    }
 
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (sender instanceof Player) {
-            if (args.length == 0) { //Sender only typed '/sendup' and nothing else
+        if (args.length == 0) { //Sender only typed '/sendup' and nothing else
+            if (sender instanceof Player) {
                 ((Player) sender).setVelocity(new Vector(0, 5, 0));
                 sender.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "Up you go!");
                 ((Player) sender).getWorld().strikeLightning(((Player) sender).getLocation());
             } else {
-                // This takes multiple arguments and players!
-                for (String arg : args) {
-                    Player player = Bukkit.getPlayer(arg);
-                    if (player == null) {
-                        sender.sendMessage(ChatColor.RED + "You sent an invalid player!");
-                        continue;
-                    }
-                    player.setVelocity(new Vector(0, 5, 0));
-                    player.getWorld().strikeLightningEffect(player.getLocation());
-                    player.getWorld().playSound(player.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 10, 1);
-                    player.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "Up you go!");
-
-                }
+                sender.sendMessage(ChatColor.RED + "Specify a player!");
             }
-            return true;
+        } else {
+            // This takes multiple arguments and players!
+            for (String arg : args) {
+                Player player = Bukkit.getPlayer(arg);
+                if (player == null) {
+                    sender.sendMessage(ChatColor.RED + "You sent an invalid player!");
+                    continue;
+                }
+                player.setVelocity(new Vector(0, 5, 0));
+                player.getWorld().strikeLightningEffect(player.getLocation());
+                player.getWorld().playSound(player.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 10, 1);
+                player.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "Up you go!");
+            }
+            sender.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "Bam!");
         }
-        Bukkit.getLogger().severe("Only players can run this command!");
         return true;
-
     }
 
     @Override
