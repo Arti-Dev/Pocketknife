@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 public class ComboSound {
     private final ArrayList<Pitch[]> chart = new ArrayList<>();
+    /** Whether to play an extra sfx at the end of the sound. */
+    public boolean extra = false;
     private BukkitTask runnable = null;
     /**
      * Create a ComboSound with first note
@@ -61,6 +63,7 @@ public class ComboSound {
                 }
                 i++;
                 if (i >= chart.size()) {
+                    if (extra) player.playSound(player, Sound.ENTITY_WARDEN_SONIC_BOOM, 0.2f, 1);
                     runnable = null;
                     this.cancel();
                 }

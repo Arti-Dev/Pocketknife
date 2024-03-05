@@ -16,6 +16,7 @@ import java.util.Random;
 public class ComboCounter {
     private final Player player;
     private int combo = 0;
+    private int multiplicity = 1;
     /** Ticks since last combo increase */
     private int inactiveTicks = 0;
     /** Number of inactive ticks until combo resets */
@@ -43,8 +44,13 @@ public class ComboCounter {
                 player.getUniqueId() + "_Bossbar");
     }
 
+    private boolean incrementedThisTick = false;
+
     public void incrementCombo() {
-        // todo make it so that hitting multiple mobs in one tick only increments once
+        if (incrementedThisTick) {
+            incrementMultiplicity();
+            return;
+        }
         currentSound.interrupt();
         currentSound = ComboSound.createComboSound(++combo);
         currentSound.play(player);
@@ -69,9 +75,22 @@ public class ComboCounter {
             playComboFX();
         }
 
-        sendActionBar(combo);
+        sendActionBar(combo, multiplicity);
         resetInactiveTicks();
+
+        incrementedThisTick = true;
+        Bukkit.getScheduler().runTask(Pocketknife.getInstance(), () -> {
+            incrementedThisTick = false;
+            multiplicity = 1;
+        });
     }
+
+    public void incrementMultiplicity() {
+        multiplicity += 1;
+        if (multiplicity >= 4 && combo >= 4) currentSound.extra = true;
+        sendActionBar(combo, multiplicity);
+    }
+
     private void resetCombo() {
         combo = 0;
         ticksBetweenCombo = 0;
@@ -131,13 +150,17 @@ public class ComboCounter {
         }.runTaskLater(Pocketknife.getInstance(), ticksBetweenCombo/2);
     }
 
-    private void sendActionBar(int combo) {
+    private void sendActionBar(int combo, int multiplicity) {
         TextComponent component;
         if (combo <= 1) return;
         else if (combo <= 4) component = new TextComponent(ChatColor.GRAY + "" + combo + " Combo");
         else if (combo <= 7) component = new TextComponent(ChatColor.YELLOW + "" + combo + " Combo");
         else if (combo <= 10) component = new TextComponent(ChatColor.GOLD + "" + combo + " COMBO");
         else component = new TextComponent(ChatColor.AQUA + "" + ChatColor.BOLD + combo + " COMBO!!!");
+
+        if (multiplicity > 1) {
+            component.addExtra(" " + ChatColor.BOLD + ChatColor.DARK_RED + multiplicity + "x");
+        }
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, component);
     }
 
