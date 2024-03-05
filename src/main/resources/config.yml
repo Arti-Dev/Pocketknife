@@ -1,5 +1,2 @@
-genesisexplode: false
-spawnpigsondeath: true
-diamondhit: true
-speedtech: true
-pingrune: true
+forcerespawn: true
+sendup: true
