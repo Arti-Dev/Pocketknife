@@ -125,7 +125,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         boolean registered = false;
         if (classObj instanceof PocketknifeFeature feature) {
             feature.enabled = getEnabledFromConfig(feature.getClass());
-            if (feature.isEnabled() && feature instanceof Listener listener) registerListener(listener);
+            if (feature.isEnabled()) enableFeature(feature);
             if (feature instanceof PocketknifeSubcommand command) registerSubcommand(command);
             featureMap.put(targetClass.getSimpleName(), feature);
             registered = true;
@@ -225,7 +225,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
     }
 
     private void enableFeature(PocketknifeFeature feature) {
-        if (feature instanceof Listener listener) getServer().getPluginManager().registerEvents(listener, this);
+        if (feature instanceof Listener listener) registerListener(listener);
         feature.onEnable();
         feature.enabled = true;
         setEnabledInConfig(feature.getClass(), true);
