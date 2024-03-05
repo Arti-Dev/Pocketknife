@@ -35,7 +35,6 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
 
     // HashSets here are for caching purposes only
     private static final HashSet<String> pocketknifeSubcommands = new HashSet<>();
-    private static final HashSet<PocketknifeConfigurable> configurableClasses = new HashSet<>();
 
     /**
      * Initializes Reflections library for me.
@@ -95,8 +94,11 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
      * Load this AFTER registering everything!
      */
     private void loadConfig() {
-        for (PocketknifeConfigurable clazz : configurableClasses) {
-            clazz.loadConfig(getConfig());
+        for (PocketknifeFeature feature : featureMap.values()) {
+            if (feature instanceof PocketknifeConfigurable configurable) {
+                configurable.loadConfig(getConfig());
+            }
+            feature.enabled = getEnabledFromConfig(feature.getClass());
         }
     }
 
@@ -122,7 +124,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         // Attempt to identify its type
         boolean registered = false;
         if (classObj instanceof PocketknifeFeature feature) {
-            // todo feature.enabled = ???
+            feature.enabled = getEnabledFromConfig(feature.getClass());
             if (feature.isEnabled() && feature instanceof Listener listener) registerListener(listener);
             if (feature instanceof PocketknifeSubcommand command) registerSubcommand(command);
             featureMap.put(targetClass.getSimpleName(), feature);
@@ -135,12 +137,25 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         }
 
         if (classObj instanceof PocketknifeConfigurable configurable) {
-            // Add instance to our set
             registerConfigurable(configurable);
             registered = true;
         }
 
         return registered;
+    }
+
+    private boolean getEnabledFromConfig(Class<?> clazz) {
+        String name = clazz.getSimpleName().toLowerCase();
+        if (!getConfig().contains(name)) {
+            getConfig().set(name, false);
+            saveConfig();
+        }
+        return getConfig().getBoolean(name, false);
+    }
+
+    private void setEnabledInConfig(Class<?> clazz, boolean enabled) {
+        getConfig().set(clazz.getSimpleName().toLowerCase(), enabled);
+        saveConfig();
     }
 
     private void registerListener(Listener listener) {
@@ -154,8 +169,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
     }
 
     private void registerConfigurable(PocketknifeConfigurable configurable) {
-        configurableClasses.add(configurable);
-        Bukkit.getConsoleSender().sendMessage("Registered configuration from " + configurable.getClass().getSimpleName());
+        Bukkit.getConsoleSender().sendMessage("Noted configuration from " + configurable.getClass().getSimpleName());
     }
 
     /**
@@ -207,12 +221,14 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         if (feature instanceof Listener listener) unregisterListener(listener);
         feature.onDisable();
         feature.enabled = false;
+        setEnabledInConfig(feature.getClass(), false);
     }
 
     private void enableFeature(PocketknifeFeature feature) {
         if (feature instanceof Listener listener) getServer().getPluginManager().registerEvents(listener, this);
         feature.onEnable();
         feature.enabled = true;
+        setEnabledInConfig(feature.getClass(), true);
     }
 
     private void unregisterListener(Listener listener) {
@@ -256,6 +272,30 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
             return true;
         }
 
+        // List
+
+        if (args[0].equalsIgnoreCase("list")) {
+            sender.sendMessage(ChatColor.AQUA + "List of Pocketknife Features:");
+            ArrayList<PocketknifeFeature> features = new ArrayList<>(featureMap.values());
+            features.sort((feature1, feature2) -> {
+                return (feature1.getClass().getSimpleName().compareTo(feature2.getClass().getSimpleName()));
+            });
+            for (PocketknifeFeature feature : features) {
+                sender.sendMessage(feature.getClass().getSimpleName() + ": " + Utils.booleanStatus(feature.isEnabled()));
+            }
+
+            sender.sendMessage("");
+            sender.sendMessage(ChatColor.AQUA + "List of generic listeners - these cannot be toggled");
+            ArrayList<Listener> listeners = new ArrayList<>(listenerMap.values());
+            listeners.sort((listener1, listener2) -> {
+                return (listener1.getClass().getSimpleName().compareTo(listener2.getClass().getSimpleName()));
+            });
+            for (Listener listener : listeners) {
+                sender.sendMessage(listener.getClass().getSimpleName());
+            }
+            return true;
+        }
+
         // Run a command
 
         PocketknifeSubcommand pocketCommand = getSubcommand(args[0]);
@@ -291,6 +331,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
             ArrayList<String> strings = new ArrayList<>(pocketknifeSubcommands);
             strings.add("reload");
             strings.add("toggle");
+            strings.add("list");
             StringUtil.copyPartialMatches(args[0], strings, completions);
         }
 

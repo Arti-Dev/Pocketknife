@@ -1,5 +1,6 @@
 package com.articreep.pocketknife;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -269,8 +270,8 @@ public class Utils {
     }
 
     public static String booleanStatus(boolean boo) {
-        if (boo) return "ON";
-        else return "OFF";
+        if (boo) return ChatColor.GREEN + "ON";
+        else return ChatColor.RED + "OFF";
     }
 
     public static float invertYaw(float yaw) {
