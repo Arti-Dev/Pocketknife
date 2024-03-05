@@ -1,21 +1,19 @@
 package com.articreep.pocketknife.features;
 
 import com.articreep.pocketknife.Pocketknife;
-import com.articreep.pocketknife.PocketknifeConfigurable;
 import com.articreep.pocketknife.PocketknifeFeature;
 import com.articreep.pocketknife.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.util.Vector;
 
-public class PingRune extends PocketknifeFeature implements Listener, PocketknifeConfigurable {
+public class PingRune extends PocketknifeFeature implements Listener {
     @Override
     public String getDescription() {
         return "Runes are cosmetic items that can be applied to items on Hypixel Skyblock. " +
@@ -75,11 +73,5 @@ public class PingRune extends PocketknifeFeature implements Listener, Pocketknif
 
     private static void setTextRotation(TextDisplay display, Location damagerLoc) {
         display.setRotation(Utils.invertYaw(damagerLoc.getYaw()), Utils.invertPitch(damagerLoc.getPitch()));
-    }
-
-    @Override
-    public void loadConfig(FileConfiguration config) {
-        enabled = config.getBoolean("pingrune");
-        config.set("pingrune", enabled);
     }
 }

@@ -1,12 +1,13 @@
 package com.articreep.pocketknife.features;
 
-import com.articreep.pocketknife.*;
+import com.articreep.pocketknife.Pocketknife;
+import com.articreep.pocketknife.PocketknifeSubcommand;
+import com.articreep.pocketknife.Utils;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.StringUtil;
@@ -17,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Speedtech extends PocketknifeSubcommand implements PocketknifeConfigurable {
+public class Speedtech extends PocketknifeSubcommand {
     private boolean lines = false;
     /**
      * If this variable is something other than -1, a Runnable is already running.
@@ -310,14 +311,6 @@ public class Speedtech extends PocketknifeSubcommand implements PocketknifeConfi
                 initialHeight.remove(player);
             }
         }
-    }
-
-    @Override
-    public void loadConfig(FileConfiguration config) {
-        enabled = config.getBoolean("speedtech");
-        config.set("speedtech", enabled);
-        if (enabled) trackLocations();
-        else stopTracking();
     }
 
 }

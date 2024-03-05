@@ -1,11 +1,9 @@
 package com.articreep.pocketknife.features;
 
 import com.articreep.pocketknife.Pocketknife;
-import com.articreep.pocketknife.PocketknifeConfigurable;
 import com.articreep.pocketknife.PocketknifeFeature;
 import com.articreep.pocketknife.Utils;
 import org.bukkit.*;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,11 +19,10 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-public class DiamondHit extends PocketknifeFeature implements Listener, PocketknifeConfigurable {
+public class DiamondHit extends PocketknifeFeature implements Listener {
 
     // WeakHashMaps automatically remove garbage-collected members
     private static final Set<Item> droppedXPSet = Collections.newSetFromMap(new WeakHashMap<>());
-    private boolean enabled = false;
     private static final NamespacedKey cooldownKey = new NamespacedKey(Pocketknife.getInstance(), "DIAMONDHIT_COOLDOWN");
 
     @EventHandler
@@ -76,12 +73,6 @@ public class DiamondHit extends PocketknifeFeature implements Listener, Pocketkn
             player.sendMessage(ChatColor.AQUA + "" + ChatColor.BOLD + "XP!" + ChatColor.RESET + ChatColor.AQUA + " +30 XP " + ChatColor.GRAY + "from opponent armor piece");
             player.playSound(player, Sound.ENTITY_ARROW_HIT_PLAYER, 1, 1);
         }
-    }
-
-    @Override
-    public void loadConfig(FileConfiguration config) {
-        enabled = config.getBoolean("diamondhit");
-        config.set("diamondhit", enabled);
     }
 
     @Override

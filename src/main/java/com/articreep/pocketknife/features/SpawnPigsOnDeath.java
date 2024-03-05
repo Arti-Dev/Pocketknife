@@ -1,11 +1,9 @@
 package com.articreep.pocketknife.features;
 
 import com.articreep.pocketknife.Pocketknife;
-import com.articreep.pocketknife.PocketknifeConfigurable;
 import com.articreep.pocketknife.PocketknifeFeature;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,18 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-public class SpawnPigsOnDeath extends PocketknifeFeature implements Listener, PocketknifeConfigurable {
-	Pocketknife plugin;
-	public SpawnPigsOnDeath() {
-		plugin = Pocketknife.getInstance();
-		enabled = plugin.getConfig().getBoolean("spawnpigsondeath");
-	}
-
-	@Override
-	public void loadConfig(FileConfiguration config) {
-		enabled = config.getBoolean("spawnpigsondeath");
-		config.set("spawnpigsondeath", enabled);
-	}
+public class SpawnPigsOnDeath extends PocketknifeFeature implements Listener {
 
 	@EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {

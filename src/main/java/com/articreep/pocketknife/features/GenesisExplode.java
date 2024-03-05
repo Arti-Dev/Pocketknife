@@ -1,7 +1,6 @@
 package com.articreep.pocketknife.features;
 
 import com.articreep.pocketknife.Pocketknife;
-import com.articreep.pocketknife.PocketknifeConfigurable;
 import com.articreep.pocketknife.PocketknifeSubcommand;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -12,7 +11,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -25,16 +23,10 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * This was used for the Pit Day 2022 video! <a href="https://www.youtube.com/watch?v=JkHlECk1_Ao">...</a>
  */
-public class GenesisExplode extends PocketknifeSubcommand implements PocketknifeConfigurable {
-    private boolean enabled = false;
+public class GenesisExplode extends PocketknifeSubcommand {
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) return false;
-
-        if (!enabled) {
-            player.sendMessage(ChatColor.RED + "This feature is currently disabled!");
-            return true;
-        }
 
         World w = player.getWorld();
         if (!w.getName().equalsIgnoreCase("Genesis")) {
@@ -94,12 +86,6 @@ public class GenesisExplode extends PocketknifeSubcommand implements Pocketknife
     @Override
     public String getSyntax() {
         return "Usage: /pocketknife GenesisExplode";
-    }
-
-    @Override
-    public void loadConfig(FileConfiguration config) {
-        enabled = config.getBoolean("genesisexplode");
-        config.set("genesisexplode", enabled);
     }
 
     private static Vector randomVec() {
