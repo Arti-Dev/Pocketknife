@@ -1,5 +1,9 @@
 package com.articreep.pocketknife;
 
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -239,6 +243,9 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length < 1) {
             sender.sendMessage(ChatColor.RED + "Usage: /pocketknife <feature> <args>");
+            sender.sendMessage(ChatColor.RED + "/pocketknife list");
+            sender.sendMessage(ChatColor.RED + "/pocketknife reload");
+            sender.sendMessage(ChatColor.RED + "/pocketknife toggle <feature>");
             return true;
         }
 
@@ -313,6 +320,11 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
         if (!pocketCommand.isEnabled()) {
             sender.sendMessage(ChatColor.RED + "This feature is currently disabled!");
             sender.sendMessage(ChatColor.GRAY + "Enable it with /pocketknife toggle <feature>");
+            String toRun = "/pocketknife toggle " + pocketCommand.getClass().getSimpleName();
+            TextComponent confirmComponent = new TextComponent(ChatColor.GREEN + "" + ChatColor.BOLD + "or click here");
+            confirmComponent.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, toRun));
+            confirmComponent.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(ChatColor.GREEN + "Runs " + toRun)));
+            sender.spigot().sendMessage(confirmComponent);
             return true;
         }
 
