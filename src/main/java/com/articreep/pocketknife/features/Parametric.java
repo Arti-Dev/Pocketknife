@@ -69,7 +69,9 @@ public class Parametric extends PocketknifeSubcommand {
                 double x = Math.sin(3*t) * Math.sin(t);
                 double y = Math.sin(3*t) * Math.sin(t) * Math.cos(t);
                 double z = Math.sin(3*t) * Math.cos(t);
-                player.getWorld().spawnParticle(Particle.END_ROD, player.getLocation().add(x, y, z), 1);
+                player.getWorld().spawnParticle(Particle.DUST, player.getLocation().
+                        add(0, 1, 0).
+                        add(x, y, z), 1);
             }
         }.runTaskTimer(Pocketknife.getInstance(), 0, 1);
     }
