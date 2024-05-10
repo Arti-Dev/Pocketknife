@@ -37,7 +37,7 @@ public class SplashDecoratedPot implements Listener {
         ItemStack droppedItem = pot.getInventory().getItem();
         if (droppedItem == null) return;
         if (droppedItem.getType() == Material.SPLASH_POTION || droppedItem.getType() == Material.LINGERING_POTION) {
-            ThrownPotion potion = (ThrownPotion) pot.getWorld().spawnEntity(pot.getLocation(), EntityType.SPLASH_POTION);
+            ThrownPotion potion = (ThrownPotion) pot.getWorld().spawnEntity(pot.getLocation(), EntityType.POTION);
             potion.setItem(droppedItem);
             // empty the pot before it's broken
             pot.getInventory().setItem(new ItemStack(Material.AIR));

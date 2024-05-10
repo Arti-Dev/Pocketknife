@@ -29,7 +29,7 @@ public class CustomQueueItems {
 
     public static ItemStack explosiveArrow(int count) {
         ItemStack arrow = new ItemStack(Material.ARROW, count);
-        arrow.addUnsafeEnchantment(Enchantment.DURABILITY, 1);
+        arrow.addUnsafeEnchantment(Enchantment.UNBREAKING, 1);
         ItemMeta meta = arrow.getItemMeta();
         meta.setDisplayName(ChatColor.DARK_RED + "Explosive Arrow");
         PersistentDataContainer container = meta.getPersistentDataContainer();

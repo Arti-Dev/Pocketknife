@@ -112,8 +112,8 @@ public class Speedtech extends PocketknifeSubcommand {
         final Particle.DustOptions RED = new Particle.DustOptions(Color.RED, 1);
 
         for (double covered = 0; covered <= distance; covered += inbetween) {
-            w.spawnParticle(Particle.REDSTONE, loc1.add(playerDir), 2, GREEN);
-            if (!ignoreMovement) w.spawnParticle(Particle.REDSTONE, loc2.add(movementDir), 2, RED);
+            w.spawnParticle(Particle.DUST, loc1.add(playerDir), 2, GREEN);
+            if (!ignoreMovement) w.spawnParticle(Particle.DUST, loc2.add(movementDir), 2, RED);
             covered += inbetween;
         }
 

@@ -46,7 +46,7 @@ public class GenesisExplode extends PocketknifeSubcommand {
             @Override
             public void run() {
                 if (i >= 10) this.cancel();
-                w.spawnEntity(l, EntityType.PRIMED_TNT);
+                w.spawnEntity(l, EntityType.TNT);
                 i++;
             }
         }.runTaskTimer(Pocketknife.getInstance(), 0, 4);

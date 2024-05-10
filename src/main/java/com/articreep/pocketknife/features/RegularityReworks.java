@@ -248,13 +248,13 @@ public class RegularityReworks extends PocketknifeSubcommand implements Listener
                         victim.setVelocity(Utils.randomKB(0.4));
                     }
                     victim.getWorld().playSound(victim.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1, 1);
-                    victim.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, victim.getLocation(), 1);
+                    victim.getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, victim.getLocation(), 1);
                     Utils.trueDamage(victim, 1);
                     launchNearby(victim);
                     this.cancel();
                 }
                 Location loc = victim.getLocation().add(Math.sin(rads), 1, Math.cos(rads));
-                victim.getWorld().spawnParticle(Particle.REDSTONE, loc, 1, new Particle.DustOptions(Color.RED, 0.7F));
+                victim.getWorld().spawnParticle(Particle.DUST, loc, 1, new Particle.DustOptions(Color.RED, 0.7F));
                 rads += 0.3;
                 t--;
 

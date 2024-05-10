@@ -79,7 +79,7 @@ public class MKFeather extends PocketknifeSubcommand implements Listener {
             event.setCancelled(true);
             if (!playersOnCooldown.contains(player)) {
                 item.setAmount(item.getAmount() - 1);
-                player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 20, 7-1));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 20, 7-1));
                 player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 10 * 20, 2-1));
                 player.playSound(player.getLocation(), Sound.ENTITY_HORSE_JUMP, 1, 1);
 

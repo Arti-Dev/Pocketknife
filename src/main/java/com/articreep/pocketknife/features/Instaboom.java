@@ -50,7 +50,7 @@ public class Instaboom extends PocketknifeSubcommand implements Listener {
         vector.multiply(factor);
 
         w.playSound(exploLoc, Sound.ENTITY_GENERIC_EXPLODE, 1, 1);
-        w.spawnParticle(Particle.EXPLOSION_HUGE, exploLoc, 1);
+        w.spawnParticle(Particle.EXPLOSION_EMITTER, exploLoc, 1);
 
         p.setVelocity(vector);
 
@@ -83,7 +83,7 @@ public class Instaboom extends PocketknifeSubcommand implements Listener {
         meta.setDisplayName(ChatColor.AQUA + "Instaboom TNT");
         Utils.setItemID(meta, "INSTABOOM_TNT");
         tnt.setItemMeta(meta);
-        tnt.addUnsafeEnchantment(Enchantment.ARROW_INFINITE, 1);
+        tnt.addUnsafeEnchantment(Enchantment.INFINITY, 1);
         return tnt;
     }
 

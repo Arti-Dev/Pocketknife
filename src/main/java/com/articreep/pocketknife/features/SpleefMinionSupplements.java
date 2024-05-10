@@ -73,7 +73,7 @@ public class SpleefMinionSupplements extends PocketknifeSubcommand implements Li
         } else if (event.getEntity() instanceof Arrow arrow) {
             if (arrow.getPersistentDataContainer().has(exploKey, PersistentDataType.BOOLEAN)) {
                 World w = arrow.getWorld();
-                w.spawnEntity(arrow.getLocation(), EntityType.PRIMED_TNT);
+                w.spawnEntity(arrow.getLocation(), EntityType.TNT);
                 arrow.remove();
             }
         }

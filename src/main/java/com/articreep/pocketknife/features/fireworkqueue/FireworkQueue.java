@@ -113,7 +113,7 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
             for (Entity entity : entities) {
                 if (entity instanceof LivingEntity && !entity.equals(player)) ((LivingEntity) entity).damage(damage);
             }
-            proj.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, proj.getLocation(), 1);
+            proj.getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, proj.getLocation(), 1);
         }
 
     }
@@ -224,7 +224,7 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
                 inventory.setItemInOffHand(activeItem);
             } else if (activeItem.getType() == Material.ARROW) {
                 ItemStack bow = new ItemStack(Material.BOW);
-                bow.addEnchantment(Enchantment.ARROW_FIRE, 1);
+                bow.addEnchantment(Enchantment.FLAME, 1);
                 inventory.setItem(0, bow);
                 inventory.setItemInOffHand(activeItem);
             } else inventory.setItem(0, activeItem);
