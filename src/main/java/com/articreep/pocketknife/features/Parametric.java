@@ -3,6 +3,7 @@ package com.articreep.pocketknife.features;
 import com.articreep.pocketknife.Pocketknife;
 import com.articreep.pocketknife.PocketknifeSubcommand;
 import com.articreep.pocketknife.Utils;
+import org.bukkit.Color;
 import org.bukkit.Particle;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -71,7 +72,8 @@ public class Parametric extends PocketknifeSubcommand {
                 double z = Math.sin(3*t) * Math.cos(t);
                 player.getWorld().spawnParticle(Particle.DUST, player.getLocation().
                         add(0, 1, 0).
-                        add(x, y, z), 1);
+                        add(x, y, z), 1,
+                        new Particle.DustOptions(Color.RED, 0.7F));
             }
         }.runTaskTimer(Pocketknife.getInstance(), 0, 1);
     }
