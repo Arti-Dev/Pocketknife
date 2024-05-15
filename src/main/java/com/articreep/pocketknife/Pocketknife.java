@@ -99,6 +99,7 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
      */
     private void loadConfig() {
         for (PocketknifeFeature feature : featureMap.values()) {
+            // todo this does not account for classes that only extend configurable but not feature
             if (feature instanceof PocketknifeConfigurable configurable) {
                 configurable.loadConfig(getConfig());
             }
