@@ -122,7 +122,7 @@ public class Parametric extends PocketknifeSubcommand {
         int maxTicks = 100;
 
         ArrayList<BlockDisplay> trail = new ArrayList<>();
-        BlockDisplay display = iceDisplay(initialLocation, 2);
+        BlockDisplay display = iceDisplay(initialLocation, Material.SNOW_BLOCK, 0.5f);
         new BukkitRunnable() {
             int elapsed = 0;
             double t = Math.PI / 2;
@@ -132,10 +132,10 @@ public class Parametric extends PocketknifeSubcommand {
                 t += 1;
 
                 if (elapsed < 60 && elapsed % 2 == 0) {
-                    trail.add(iceDisplay(initialLocation, 1f));
+                    trail.add(iceDisplay(initialLocation, Material.ICE, 0.5f));
                 }
                 double x = t - Math.sin(t);
-                double y = 1 - Math.cos(t);
+                double y = 0.25 - Math.cos(t)/4;
                 Random random = new Random();
                 display.teleport(initialLocation.clone().add(0, y, 0)
                         .add(direction.clone().multiply(x)));
@@ -178,7 +178,7 @@ public class Parametric extends PocketknifeSubcommand {
                 t += 1;
 
                 if (elapsed % 2 == 0) {
-                    trail.add(iceDisplay(initialLocation, 1f));
+                    trail.add(iceDisplay(initialLocation, Material.BLUE_ICE,1f));
                 }
 
                 if (elapsed % 2 == 0 && trail.size() > 200) {
@@ -210,9 +210,9 @@ public class Parametric extends PocketknifeSubcommand {
         }.runTaskTimer(Pocketknife.getInstance(), 0, 1);
     }
 
-    private BlockDisplay iceDisplay(Location location, float size) {
+    private BlockDisplay iceDisplay(Location location, Material material, float size) {
         BlockDisplay display = (BlockDisplay) location.getWorld().spawnEntity(location, EntityType.BLOCK_DISPLAY);
-        display.setBlock(Material.BLUE_ICE.createBlockData());
+        display.setBlock(material.createBlockData());
         display.setTeleportDuration(1);
         display.setInterpolationDuration(10);
         display.setTransformation(new Transformation(new Vector3f(-size/2f, -size/2f, -size/2f),
