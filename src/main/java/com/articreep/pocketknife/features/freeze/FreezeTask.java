@@ -44,7 +44,7 @@ public class FreezeTask {
                     despawn();
                     Freeze.resetAttributes(player, originalValues);
                     Freeze.frozenPlayers.remove(player);
-                    player.playSound(player.getLocation(), Sound.BLOCK_GLASS_BREAK, 5, 0.5f);
+                    player.getWorld().playSound(player.getLocation(), Sound.BLOCK_GLASS_BREAK, 5, 0.5f);
                     player.getWorld().spawnParticle(Particle.BLOCK,
                             player.getLocation().add(0.0, 1.0, 0.0), 40,
                             0.5, 1.0, 0.5, 0.5, Material.ICE.createBlockData());
