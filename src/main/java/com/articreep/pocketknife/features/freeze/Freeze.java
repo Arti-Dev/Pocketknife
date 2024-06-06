@@ -3,15 +3,15 @@
 // (powered by FernFlower decompiler)
 //
 
-package com.articreep.pocketknife.features;
+package com.articreep.pocketknife.features.freeze;
 
-import com.articreep.pocketknife.Pocketknife;
 import com.articreep.pocketknife.PocketknifeSubcommand;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -19,8 +19,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Freeze extends PocketknifeSubcommand implements Listener {
-    private final HashMap<Player, BukkitTask> frozenPlayers = new HashMap<>();
+    protected static final HashMap<Player, FreezeTask> frozenPlayers = new HashMap<>();
 
     public Freeze() {
 
@@ -56,10 +54,10 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
                 ArrayList<Attribute> attributes = new ArrayList<>(
                         Arrays.asList(Attribute.GENERIC_MOVEMENT_SPEED,
                         Attribute.GENERIC_JUMP_STRENGTH,
-                        Attribute.PLAYER_BLOCK_BREAK_SPEED,
                         Attribute.PLAYER_BLOCK_INTERACTION_RANGE,
                         Attribute.PLAYER_ENTITY_INTERACTION_RANGE,
-                        Attribute.GENERIC_GRAVITY));
+                        Attribute.GENERIC_GRAVITY,
+                        Attribute.GENERIC_STEP_HEIGHT));
 
                 for (Attribute attribute : attributes) {
                     try {
@@ -70,29 +68,19 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
                     }
                 }
 
-                toFreeze.getAttribute(Attribute.GENERIC_JUMP_STRENGTH).setBaseValue(0.2);
+                toFreeze.getAttribute(Attribute.GENERIC_JUMP_STRENGTH).setBaseValue(0.1);
                 toFreeze.getAttribute(Attribute.GENERIC_GRAVITY).setBaseValue(1.0);
-                BukkitTask task = new BukkitRunnable() {
-                    int ticks = 160;
-                    public void run() {
-                        if (ticks > 0) {
-                            toFreeze.setFreezeTicks(ticks);
-                        } else {
-                            resetAttributes(toFreeze, originalValues);
-                            frozenPlayers.remove(toFreeze);
-                            this.cancel();
-                        }
-                        ticks--;
-                    }
-                }.runTaskTimer(Pocketknife.getInstance(), 0, 1);
+                FreezeTask task = new FreezeTask(toFreeze, originalValues);
 
-                this.frozenPlayers.put(toFreeze, task);
+                task.run();
+
+                frozenPlayers.put(toFreeze, task);
             }
             return true;
         }
     }
 
-    private void resetAttributes(Player player, HashMap<Attribute, Double> originalAttributes) {
+    protected static void resetAttributes(Player player, HashMap<Attribute, Double> originalAttributes) {
         for (Attribute attribute : originalAttributes.keySet()) {
             player.getAttribute(attribute).setBaseValue(originalAttributes.get(attribute));
         }
@@ -113,12 +101,15 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
         if (frozenPlayers.containsKey(event.getPlayer())) {
             Location from = event.getFrom();
             Location to = event.getTo();
-            if (to != null && from.getX() == to.getX() && from.getY() == to.getY() && from.getZ() == to.getZ()) {
+            if (to == null || from.getX() == to.getX() && from.getY() == to.getY() && from.getZ() == to.getZ()) {
                 return;
             }
 
             Player player = event.getPlayer();
-            player.getWorld().spawnParticle(Particle.BLOCK, player.getLocation().add(0.0, 1.0, 0.0), 20, 0.5, 1.0, 0.5, 0.1, Material.ICE.createBlockData());
+            player.getWorld().spawnParticle(Particle.BLOCK,
+                    player.getLocation().add(0.0, 1.0, 0.0), 20,
+                    0.5, 1.0, 0.5, 0.1, Material.ICE.createBlockData());
+            frozenPlayers.get(player).decreaseTicks(5);
         }
 
     }
