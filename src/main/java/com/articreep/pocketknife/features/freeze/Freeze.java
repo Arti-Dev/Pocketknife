@@ -91,7 +91,7 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
 
         task.run();
 
-        toFreeze.playSound(toFreeze.getLocation(), Sound.ENTITY_PLAYER_HURT_FREEZE, 5, 0.5f);
+        toFreeze.getWorld().playSound(toFreeze.getLocation(), Sound.ENTITY_PLAYER_HURT_FREEZE, 5, 0.5f);
         toFreeze.getWorld().spawnParticle(Particle.SNOWFLAKE, toFreeze.getLocation().add(0, 1, 0),
                 100, 0, 0, 0, 0.3);
 
@@ -127,7 +127,7 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
             player.getWorld().spawnParticle(Particle.BLOCK,
                     player.getLocation().add(0.0, 1.0, 0.0), 20,
                     0.5, 1.0, 0.5, 0.1, Material.ICE.createBlockData());
-            player.playSound(player.getLocation(), Sound.BLOCK_GLASS_BREAK, 0.3f, 1.5f);
+            player.getWorld().playSound(player.getLocation(), Sound.BLOCK_GLASS_BREAK, 0.3f, 1.5f);
             frozenPlayers.get(player).decreaseTicks(5);
         }
 
@@ -192,15 +192,14 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
                     boolean shouldRemove = false;
                     for (Entity entity : entitiesNearby) {
                         if (entity instanceof Player toFreeze && entity != player) {
-                            freeze(toFreeze, 160);
+                            if (random.nextDouble(0, 1) <= 0.15) {
+                                freeze(toFreeze, 160);
+                            } else {
+                                freezeDamage(toFreeze, direction);
+                            }
                             shouldRemove = true;
                         } else if (entity instanceof LivingEntity livingEntity && entity != player) {
-                            // knockback
-                            livingEntity.setVelocity(direction.clone().multiply(0.5).setY(0.1));
-                            livingEntity.getWorld().playSound(livingEntity.getLocation(), Sound.BLOCK_GLASS_BREAK, 0.3f, 1.5f);
-                            livingEntity.getWorld().spawnParticle(Particle.BLOCK, livingEntity.getLocation().add(0, 1, 0),
-                                    10, 0, 0, 0, 0.1, Material.ICE.createBlockData());
-                            livingEntity.damage(1);
+                            freezeDamage(livingEntity, direction);
                             shouldRemove = true;
                         }
                     }
@@ -211,11 +210,14 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
                 }
 
                 for (BlockDisplay block : trail) {
-                    double x = (t - offset) - Math.sin(t - offset);
-                    double y = 0.5 - Math.cos(t - offset)/2;
-                    block.teleport(initialLocation.clone().add(0, y, 0)
-                            .add(direction.clone().multiply(x)));
-                    block.setRotation(random.nextInt(0, 360), random.nextInt(-90, 90));
+                    if (block.isDead()) {
+                        double x = (t - offset) - Math.sin(t - offset);
+                        double y = 0.5 - Math.cos(t - offset) / 2;
+                        block.teleport(initialLocation.clone().add(0, y, 0)
+                                .add(direction.clone().multiply(x)));
+                        block.setRotation(random.nextInt(0, 360), random.nextInt(-90, 90));
+                        block.getWorld().playSound(block.getLocation(), Sound.BLOCK_GLASS_BREAK, 0.05f, 2f);
+                    }
                     offset += 2;
                 }
 
@@ -231,5 +233,13 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
                 t += 1;
             }
         }.runTaskTimer(Pocketknife.getInstance(), 0, 1);
+    }
+
+    private void freezeDamage(LivingEntity livingEntity, Vector direction) {
+        livingEntity.setVelocity(direction.clone().multiply(0.5).setY(0.1));
+        livingEntity.getWorld().playSound(livingEntity.getLocation(), Sound.BLOCK_GLASS_BREAK, 0.3f, 1.5f);
+        livingEntity.getWorld().spawnParticle(Particle.BLOCK, livingEntity.getLocation().add(0, 1, 0),
+                10, 0, 0, 0, 0.1, Material.ICE.createBlockData());
+        livingEntity.damage(1);
     }
 }
