@@ -73,15 +73,16 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
                 toFreeze.getAttribute(Attribute.GENERIC_JUMP_STRENGTH).setBaseValue(0.2);
                 toFreeze.getAttribute(Attribute.GENERIC_GRAVITY).setBaseValue(1.0);
                 BukkitTask task = new BukkitRunnable() {
+                    int ticks = 160;
                     public void run() {
-                        if (toFreeze.getFreezeTicks() > 0) {
-                            toFreeze.setFreezeTicks(toFreeze.getFreezeTicks() - 1);
+                        if (ticks > 0) {
+                            toFreeze.setFreezeTicks(ticks);
                         } else {
                             resetAttributes(toFreeze, originalValues);
                             frozenPlayers.remove(toFreeze);
                             this.cancel();
                         }
-
+                        ticks--;
                     }
                 }.runTaskTimer(Pocketknife.getInstance(), 0, 1);
 
