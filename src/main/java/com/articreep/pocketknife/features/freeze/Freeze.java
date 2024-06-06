@@ -194,7 +194,7 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
                         if (entity instanceof Player toFreeze && entity != player) {
                             if (random.nextDouble(0, 1) <= 0.15) {
                                 freeze(toFreeze, 160);
-                            } else {
+                            } else if (!frozenPlayers.containsKey(toFreeze)) {
                                 freezeDamage(toFreeze, direction);
                             }
                             shouldRemove = true;
@@ -210,7 +210,7 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
                 }
 
                 for (BlockDisplay block : trail) {
-                    if (block.isDead()) {
+                    if (!block.isDead()) {
                         double x = (t - offset) - Math.sin(t - offset);
                         double y = 0.5 - Math.cos(t - offset) / 2;
                         block.teleport(initialLocation.clone().add(0, y, 0)
