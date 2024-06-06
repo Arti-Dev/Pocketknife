@@ -2,6 +2,8 @@ package com.articreep.pocketknife.features.freeze;
 
 import com.articreep.pocketknife.Pocketknife;
 import com.articreep.pocketknife.Utils;
+import com.articreep.pocketknife.features.Parametric;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
@@ -15,6 +17,8 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Random;
 
 public class FreezeTask {
     private int ticks = 160;
@@ -31,6 +35,7 @@ public class FreezeTask {
 
     public void run() {
         spawnSnow(player);
+        spawnIceDisplay();
         Utils.teleportToCenterOfBlock(player);
         task = new BukkitRunnable() {
             public void run() {
@@ -81,6 +86,37 @@ public class FreezeTask {
         BlockDisplay blockDisplay = (BlockDisplay) player.getWorld().spawnEntity(reference, EntityType.BLOCK_DISPLAY);
         blockDisplay.setBlock(Material.SNOW.createBlockData());
         iceEntities.add(blockDisplay);
+    }
+
+    private void spawnIceDisplay() {
+        Location reference = player.getLocation();
+        Random random = new Random();
+        HashMap<BlockDisplay, Double> displays = new HashMap<>();
+        for (int i = 0; i < 5; i++) {
+            double offset = i * 0.4;
+            BlockDisplay display = Parametric.iceDisplay(reference.clone().add(0, offset, 0)
+                    , Material.ICE, random.nextFloat(0.8f, 1f));
+            display.setRotation(random.nextInt(0, 23), random.nextInt(-10, 10));
+            iceEntities.add(display);
+            displays.put(display, offset);
+        }
+        Bukkit.getScheduler().runTaskTimer(Pocketknife.getInstance(), () -> {
+            Iterator<BlockDisplay> it = displays.keySet().iterator();
+            while (it.hasNext()) {
+                BlockDisplay display = it.next();
+                if (!display.isDead()) {
+                    Location loc = player.getLocation().add(0, displays.get(display), 0);
+                    loc.setYaw(display.getLocation().getYaw());
+                    loc.setPitch(display.getLocation().getPitch());
+                    display.teleport(loc);
+                } else {
+                    it.remove();
+                    if (displays.isEmpty()) {
+                        cancel();
+                    }
+                }
+            }
+        }, 0, 1);
     }
 
     // prototype

@@ -210,7 +210,7 @@ public class Parametric extends PocketknifeSubcommand {
         }.runTaskTimer(Pocketknife.getInstance(), 0, 1);
     }
 
-    private BlockDisplay iceDisplay(Location location, Material material, float size) {
+    public static BlockDisplay iceDisplay(Location location, Material material, float size) {
         BlockDisplay display = (BlockDisplay) location.getWorld().spawnEntity(location, EntityType.BLOCK_DISPLAY);
         display.setBlock(material.createBlockData());
         display.setTeleportDuration(1);
