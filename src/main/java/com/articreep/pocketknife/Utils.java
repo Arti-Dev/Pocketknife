@@ -345,4 +345,11 @@ public class Utils {
         location.subtract(0, box.getHeight()/2, 0);
         entity.teleport(location);
     }
+
+    public static void teleportToCenterOfBlock(Player player) {
+        Location location = player.getLocation().getBlock().getLocation().add(0.5, 0.5, 0.5);
+        location.setYaw(player.getLocation().getYaw());
+        location.setPitch(player.getLocation().getPitch());
+        player.teleport(location);
+    }
 }
