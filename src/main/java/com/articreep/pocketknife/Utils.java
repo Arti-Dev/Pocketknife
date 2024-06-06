@@ -352,4 +352,8 @@ public class Utils {
         location.setPitch(player.getLocation().getPitch());
         player.teleport(location);
     }
+
+    public static boolean hasItemID(ItemStack stack) {
+       return getItemID(stack) != null;
+    }
 }

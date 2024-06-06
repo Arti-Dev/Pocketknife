@@ -3,9 +3,7 @@ package com.articreep.pocketknife.features.freeze;
 import com.articreep.pocketknife.Pocketknife;
 import com.articreep.pocketknife.Utils;
 import com.articreep.pocketknife.features.Parametric;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Snow;
@@ -21,16 +19,17 @@ import java.util.Iterator;
 import java.util.Random;
 
 public class FreezeTask {
-    private int ticks = 160;
+    private int ticks;
     private final Player player;
     private final HashMap<Attribute, Double> originalValues;
     private BukkitTask task = null;
     private final HashSet<BlockDisplay> iceEntities = new HashSet<>();
     private final HashSet<Block> iceBlocks = new HashSet<>();
 
-    public FreezeTask(Player player, HashMap<Attribute, Double> originalValues) {
+    public FreezeTask(Player player, HashMap<Attribute, Double> originalValues, int ticks) {
         this.player = player;
         this.originalValues = originalValues;
+        this.ticks = ticks;
     }
 
     public void run() {
@@ -40,11 +39,15 @@ public class FreezeTask {
         task = new BukkitRunnable() {
             public void run() {
                 if (ticks > 0) {
-                    player.setFreezeTicks(ticks);
+                    player.setFreezeTicks(ticks + 140);
                 } else {
                     despawn();
                     Freeze.resetAttributes(player, originalValues);
                     Freeze.frozenPlayers.remove(player);
+                    player.playSound(player.getLocation(), Sound.BLOCK_GLASS_BREAK, 5, 0.5f);
+                    player.getWorld().spawnParticle(Particle.BLOCK,
+                            player.getLocation().add(0.0, 1.0, 0.0), 40,
+                            0.5, 1.0, 0.5, 0.5, Material.ICE.createBlockData());
                     this.cancel();
                 }
                 ticks--;

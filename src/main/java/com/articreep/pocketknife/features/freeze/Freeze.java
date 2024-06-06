@@ -9,10 +9,7 @@ import com.articreep.pocketknife.Pocketknife;
 import com.articreep.pocketknife.PocketknifeSubcommand;
 import com.articreep.pocketknife.Utils;
 import com.articreep.pocketknife.features.Parametric;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -61,16 +58,15 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
             if (toFreeze == null) {
                 sender.sendMessage("Player not found");
             } else {
-                freeze(toFreeze);
+                freeze(toFreeze, 160);
             }
             return true;
         }
         return true;
     }
 
-    private void freeze(Player toFreeze) {
+    private void freeze(Player toFreeze, int ticks) {
         if (frozenPlayers.containsKey(toFreeze)) return;
-        toFreeze.setFreezeTicks(160);
         HashMap<Attribute, Double> originalValues = new HashMap<>();
         ArrayList<Attribute> attributes = new ArrayList<>(
                 Arrays.asList(Attribute.GENERIC_MOVEMENT_SPEED,
@@ -91,9 +87,13 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
 
         toFreeze.getAttribute(Attribute.GENERIC_JUMP_STRENGTH).setBaseValue(0.1);
         toFreeze.getAttribute(Attribute.GENERIC_GRAVITY).setBaseValue(1.0);
-        FreezeTask task = new FreezeTask(toFreeze, originalValues);
+        FreezeTask task = new FreezeTask(toFreeze, originalValues, ticks);
 
         task.run();
+
+        toFreeze.playSound(toFreeze.getLocation(), Sound.ENTITY_PLAYER_HURT_FREEZE, 5, 0.5f);
+        toFreeze.getWorld().spawnParticle(Particle.SNOWFLAKE, toFreeze.getLocation().add(0, 1, 0),
+                100, 0, 0, 0, 0.3);
 
         frozenPlayers.put(toFreeze, task);
     }
@@ -127,6 +127,7 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
             player.getWorld().spawnParticle(Particle.BLOCK,
                     player.getLocation().add(0.0, 1.0, 0.0), 20,
                     0.5, 1.0, 0.5, 0.1, Material.ICE.createBlockData());
+            player.playSound(player.getLocation(), Sound.BLOCK_GLASS_BREAK, 0.3f, 1.5f);
             frozenPlayers.get(player).decreaseTicks(5);
         }
 
@@ -135,8 +136,9 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
     @EventHandler
     public void onPlayerRightClickBlock(PlayerInteractEvent event) {
         // If player is holding an ice spray wand
-        if (event.getItem() != null && Utils.getItemID(event.getItem()).equals("ice_spray_wand")
-        && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+        if (event.getItem() != null && Utils.hasItemID(event.getItem())
+                && Utils.getItemID(event.getItem()).equals("ice_spray_wand")
+                && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Player player = event.getPlayer();
             Location location = event.getClickedBlock().getLocation()
                     .add(event.getClickedPosition());
@@ -167,7 +169,6 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
     private void bouncyIceWithHitboxes(Location initialLocation, Player player) {
         Vector direction = player.getLocation().getDirection().setY(0);
         if (!direction.isZero()) direction.normalize();
-        initialLocation.getWorld().spawnParticle(Particle.HEART, initialLocation, 1);
         int maxTicks = 100;
 
         ArrayList<BlockDisplay> trail = new ArrayList<>();
@@ -191,11 +192,14 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
                     boolean shouldRemove = false;
                     for (Entity entity : entitiesNearby) {
                         if (entity instanceof Player toFreeze && entity != player) {
-                            freeze(toFreeze);
+                            freeze(toFreeze, 160);
                             shouldRemove = true;
                         } else if (entity instanceof LivingEntity livingEntity && entity != player) {
                             // knockback
                             livingEntity.setVelocity(direction.clone().multiply(0.5).setY(0.1));
+                            livingEntity.getWorld().playSound(livingEntity.getLocation(), Sound.BLOCK_GLASS_BREAK, 0.3f, 1.5f);
+                            livingEntity.getWorld().spawnParticle(Particle.BLOCK, livingEntity.getLocation().add(0, 1, 0),
+                                    10, 0, 0, 0, 0.1, Material.ICE.createBlockData());
                             livingEntity.damage(1);
                             shouldRemove = true;
                         }
@@ -208,7 +212,7 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
 
                 for (BlockDisplay block : trail) {
                     double x = (t - offset) - Math.sin(t - offset);
-                    double y = 1 - Math.cos(t - offset);
+                    double y = 0.5 - Math.cos(t - offset)/2;
                     block.teleport(initialLocation.clone().add(0, y, 0)
                             .add(direction.clone().multiply(x)));
                     block.setRotation(random.nextInt(0, 360), random.nextInt(-90, 90));
