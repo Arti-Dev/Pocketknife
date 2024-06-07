@@ -91,6 +91,11 @@ public class Pocketknife extends JavaPlugin implements CommandExecutor, TabCompl
     }
 
     public void onDisable() {
+        // todo temporary, this will run even on features already disabled since they're already
+        // loaded into memory
+        for (PocketknifeFeature feature : featureMap.values()) {
+            feature.onDisable();
+        }
         Bukkit.getConsoleSender().sendMessage(ChatColor.YELLOW + "Pocketknife (testing plugin) disabled");
     }
 
