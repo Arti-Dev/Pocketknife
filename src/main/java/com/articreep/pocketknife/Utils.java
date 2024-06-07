@@ -18,6 +18,7 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -355,5 +356,17 @@ public class Utils {
 
     public static boolean hasItemID(ItemStack stack) {
        return getItemID(stack) != null;
+    }
+
+    public static Object getPrivateField(String fieldName, Class clazz, Object object) {
+        try {
+            Field field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return field.get(object);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 }
