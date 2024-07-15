@@ -6,6 +6,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockFromToEvent;
@@ -17,14 +18,7 @@ import org.joml.Vector3f;
 import java.util.*;
 
 public class Geyser extends PocketknifeSubcommand implements Listener {
-    private static Location hardCodedLocation;
-    private static World world;
-    private Set<Block> noFlowBlocks = new HashSet<>();
-
-    public Geyser() {
-        world = Bukkit.getWorld("flat");
-        hardCodedLocation = new Location(world, -278, -61, -314);
-    }
+    private final Set<Block> noFlowBlocks = new HashSet<>();
 
     @EventHandler
     public void onFlow(BlockFromToEvent event) {
@@ -33,12 +27,17 @@ public class Geyser extends PocketknifeSubcommand implements Listener {
 
     @Override
     public boolean runCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!(sender instanceof Player player)) return false;
+
+        Location referenceLocation = player.getTargetBlock(null, 50).getLocation();
+        World world = referenceLocation.getWorld();
+
         List<BlockDisplay> blockDisplays = new ArrayList<>();
-        BlockDisplay fence = (BlockDisplay) world.spawnEntity(hardCodedLocation.clone().add(0, 1, 0), EntityType.BLOCK_DISPLAY);
+        BlockDisplay fence = (BlockDisplay) world.spawnEntity(referenceLocation.clone().add(0, 1, 0), EntityType.BLOCK_DISPLAY);
         fence.setBlock(Material.CRIMSON_FENCE.createBlockData());
-        BlockDisplay hopper = (BlockDisplay) world.spawnEntity(hardCodedLocation.clone().add(0, 2, 0), EntityType.BLOCK_DISPLAY);
+        BlockDisplay hopper = (BlockDisplay) world.spawnEntity(referenceLocation.clone().add(0, 2, 0), EntityType.BLOCK_DISPLAY);
         hopper.setBlock(Material.HOPPER.createBlockData());
-        BlockDisplay fire = (BlockDisplay) world.spawnEntity(hardCodedLocation.clone().add(0, 3, 0), EntityType.BLOCK_DISPLAY);
+        BlockDisplay fire = (BlockDisplay) world.spawnEntity(referenceLocation.clone().add(0, 3, 0), EntityType.BLOCK_DISPLAY);
         fire.setBlock(Material.AIR.createBlockData());
 
         blockDisplays.add(fence);
@@ -52,27 +51,31 @@ public class Geyser extends PocketknifeSubcommand implements Listener {
 
         new BukkitRunnable() {
             int ticks = 0;
-            double acceleration = 10.0;
-            double gravity = -15.0;
-            Deque<Block> waterStack = new ArrayDeque<>();
+            final double acceleration = 10.0;
+            final double gravity = -15.0;
+            final Deque<Block> waterStack = new ArrayDeque<>();
             double torchVelocity = 10;
             double torchOffset = -3;
 
-            int waterDespawnPeriod = 5;
+            boolean playedWaterSound = false;
+
+            final int waterDespawnPeriod = 5;
 
             int phase = 0;
             @Override
             public void run() {
                 /*
                 A few phases:
-                - Water is actively propelling the fire torch up at some acceleration
+                - Water is actively propelling the fire torch up at some acceleration (10 ticks)
+                - Water and torch continue to rise but have stopped accelerating upwards
+                and is now affected by gravity (5 ticks)
                 - Water stops rising and starts to go back down at some linear speed
                 - Torch continues to rise and is magically lit at the peak
                 - Torch despawns when it falls below its initial spawn location
                  */
                 if (phase == 0) {
                     torchVelocity += acceleration / 20;
-                } else  {
+                } else {
                     if (torchVelocity > 0 && torchVelocity < Math.abs(gravity / 20)) {
                         lightTorch(fire, torchOffset);
                     }
@@ -96,14 +99,18 @@ public class Geyser extends PocketknifeSubcommand implements Listener {
                 }
 
                 if (phase <= 1) {
-                    // Set water blocks until deque size is torchOffset
-                    // Start at 1 above the reference location
+                    // Set water blocks until deque size is equal to how much the torch is offset
                     while (waterStack.size() < torchOffset) {
-                        Block block = hardCodedLocation.clone().add(0, waterStack.size() + 1, 0).getBlock();
+                        Location location = referenceLocation.clone().add(0, waterStack.size() + 1, 0);
+                        Block block = location.getBlock();
                         if (block.getType() == Material.AIR || block.getType() == Material.WATER || block.getType() == Material.BUBBLE_COLUMN) {
                             block.setType(Material.WATER);
                             noFlowBlocks.add(block);
                             waterStack.push(block);
+                            if (!playedWaterSound) {
+                                playedWaterSound = true;
+                                world.playSound(location, Sound.BLOCK_BUBBLE_COLUMN_UPWARDS_INSIDE, 5, 0.5f);
+                            }
                         } else {
                             phase = 2;
                             break;
@@ -122,6 +129,10 @@ public class Geyser extends PocketknifeSubcommand implements Listener {
                     for (BlockDisplay blockDisplay : blockDisplays) {
                         blockDisplay.remove();
                     }
+                    for (Block block : waterStack) {
+                        block.setType(Material.AIR);
+                        noFlowBlocks.remove(block);
+                    }
                     cancel();
                 }
 
@@ -136,7 +147,7 @@ public class Geyser extends PocketknifeSubcommand implements Listener {
         Location location = display.getLocation().add(0, offset, 0);
         display.setBlock(Material.SOUL_FIRE.createBlockData());
         display.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, display.getLocation().add(0.5, offset + 0.5, 0.5), 20, 0, 0, 0, 0.3);
-        display.getWorld().playSound(display.getLocation().add(0, offset, 0), Sound.ENTITY_BLAZE_SHOOT, 1, 1);
+        display.getWorld().playSound(display.getLocation().add(0, offset, 0), Sound.ENTITY_BLAZE_SHOOT, 5, 1);
         location.getBlock().setType(Material.LIGHT);
         Bukkit.getScheduler().runTaskLater(Pocketknife.getInstance(), () ->
                 location.getBlock().setType(Material.AIR), 20 * 3);
