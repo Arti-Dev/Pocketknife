@@ -12,7 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_20_R4.entity.CraftEnderman;
+import org.bukkit.craftbukkit.entity.CraftEnderman;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -71,10 +71,10 @@ public class Enderman extends PocketknifeSubcommand implements Listener {
     private void setCurrentGoal(Location location) {
         EnderMan customEnderman = ((CraftEnderman)endy).getHandle();
         if (currentGoal != null) {
-            customEnderman.goalSelector.removeGoal(currentGoal);
+            customEnderman.getGoalSelector().removeGoal(currentGoal);
         }
         currentGoal = new CustomPathfinderGoal(customEnderman, location, 1.5);
-        customEnderman.goalSelector.addGoal(0, currentGoal);
+        customEnderman.getGoalSelector().addGoal(0, currentGoal);
     }
 
     private org.bukkit.entity.Enderman endy;
@@ -93,12 +93,12 @@ public class Enderman extends PocketknifeSubcommand implements Listener {
             endy.setCustomName("Endy");
 
             EnderMan customEnderman = ((CraftEnderman)endy).getHandle();
-            Set goals = (Set) Utils.getPrivateField("availableGoals", GoalSelector.class, customEnderman.goalSelector);
+            Set goals = (Set) Utils.getPrivateField("availableGoals", GoalSelector.class, customEnderman.getGoalSelector());
             Set targets = (Set) Utils.getPrivateField("availableGoals", GoalSelector.class, customEnderman.targetSelector);
             goals.clear();
             targets.clear();
 
-            customEnderman.goalSelector.addGoal(1, new LookAtPlayerGoal(customEnderman, net.minecraft.world.entity.player.Player.class, 8.0F));
+            customEnderman.getGoalSelector().addGoal(1, new LookAtPlayerGoal(customEnderman, net.minecraft.world.entity.player.Player.class, 8.0F));
 
             player.sendMessage("Spawned new Endy");
             player.sendMessage("Right click a block with an eye of ender to teleport Endy to that location");

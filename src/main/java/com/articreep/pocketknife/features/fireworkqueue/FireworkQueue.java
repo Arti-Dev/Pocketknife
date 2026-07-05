@@ -84,7 +84,7 @@ public class FireworkQueue extends PocketknifeSubcommand implements Listener {
             if (isFirework(proj)) {
                 if (recentlyFired.contains(player)) return;
                 Firework firework = (Firework) proj;
-                firework.setMaxLife(range);
+                firework.setTicksToDetonate(range);
                 firework.getPersistentDataContainer().set(CustomQueueItems.damageKey, PersistentDataType.DOUBLE, damage);
             } else if (isArrow(proj)) {
                 Arrow arrow = (Arrow) proj;

@@ -69,12 +69,12 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
         if (frozenPlayers.containsKey(toFreeze)) return;
         HashMap<Attribute, Double> originalValues = new HashMap<>();
         ArrayList<Attribute> attributes = new ArrayList<>(
-                Arrays.asList(Attribute.GENERIC_MOVEMENT_SPEED,
-                        Attribute.GENERIC_JUMP_STRENGTH,
-                        Attribute.PLAYER_BLOCK_INTERACTION_RANGE,
-                        Attribute.PLAYER_ENTITY_INTERACTION_RANGE,
-                        Attribute.GENERIC_GRAVITY,
-                        Attribute.GENERIC_STEP_HEIGHT));
+                Arrays.asList(Attribute.MOVEMENT_SPEED,
+                        Attribute.JUMP_STRENGTH,
+                        Attribute.BLOCK_INTERACTION_RANGE,
+                        Attribute.ENTITY_INTERACTION_RANGE,
+                        Attribute.GRAVITY,
+                        Attribute.STEP_HEIGHT));
 
         for (Attribute attribute : attributes) {
             try {
@@ -85,8 +85,8 @@ public class Freeze extends PocketknifeSubcommand implements Listener {
             }
         }
 
-        toFreeze.getAttribute(Attribute.GENERIC_JUMP_STRENGTH).setBaseValue(0.1);
-        toFreeze.getAttribute(Attribute.GENERIC_GRAVITY).setBaseValue(1.0);
+        toFreeze.getAttribute(Attribute.JUMP_STRENGTH).setBaseValue(0.1);
+        toFreeze.getAttribute(Attribute.GRAVITY).setBaseValue(1.0);
         FreezeTask task = new FreezeTask(toFreeze, originalValues, ticks);
 
         task.run();
