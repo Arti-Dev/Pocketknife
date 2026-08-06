@@ -42,7 +42,7 @@ dependencies {
     api(libs.net.craftcitizen.imagemaps) {
         exclude(group = "org.spigotmc", module = "spigot-api")
     }
-    api(libs.com.sk89q.worldedit.worldedit.bukkit)
+    compileOnly(libs.com.sk89q.worldedit.worldedit.bukkit)
     compileOnly("io.papermc.paper:paper-api:26.2.build.+")
 
     paperweight.paperDevBundle("26.2.build.+")
