@@ -2,6 +2,7 @@ package com.articreep.pocketknife.features;
 
 import com.articreep.pocketknife.Pocketknife;
 import com.articreep.pocketknife.PocketknifeSubcommand;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
