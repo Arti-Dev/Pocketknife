@@ -79,7 +79,7 @@ public class HorseRam implements Goal<Horse> {
             }
         }.runTaskLater(Pocketknife.getInstance(), 10);
         if (target == null || target.isDead()) return;
-        target.damage(5.0);
+        target.damage(5.0, horse);
         Vector knockbackDir = target.getLocation().toVector().subtract(horse.getLocation().toVector()).normalize();
         target.setVelocity(knockbackDir.multiply(3).setY(1));
     }
