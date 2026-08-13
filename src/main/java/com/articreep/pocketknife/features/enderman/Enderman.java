@@ -93,10 +93,7 @@ public class Enderman extends PocketknifeSubcommand implements Listener {
             endy.setCustomName("Endy");
 
             EnderMan customEnderman = ((CraftEnderman)endy).getHandle();
-            Set goals = (Set) Utils.getPrivateField("availableGoals", GoalSelector.class, customEnderman.getGoalSelector());
-            Set targets = (Set) Utils.getPrivateField("availableGoals", GoalSelector.class, customEnderman.targetSelector);
-            goals.clear();
-            targets.clear();
+            Utils.clearMobGoals(customEnderman);
 
             customEnderman.getGoalSelector().addGoal(1, new LookAtPlayerGoal(customEnderman, net.minecraft.world.entity.player.Player.class, 8.0F));
 

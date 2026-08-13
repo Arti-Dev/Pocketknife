@@ -1,5 +1,6 @@
 package com.articreep.pocketknife;
 
+import net.minecraft.world.entity.ai.goal.GoalSelector;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -23,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class Utils {
     /**
@@ -368,5 +370,16 @@ public class Utils {
             return null;
         }
 
+    }
+
+    /**
+     * Clears all goals off an NMS mob.
+     * @param mob Mob to strip goals off of
+     */
+    public static void clearMobGoals(net.minecraft.world.entity.Mob mob) {
+        Set goals = (Set) Utils.getPrivateField("availableGoals", GoalSelector.class, mob.getGoalSelector());
+        Set targets = (Set) Utils.getPrivateField("availableGoals", GoalSelector.class, mob.targetSelector);
+        goals.clear();
+        targets.clear();
     }
 }
