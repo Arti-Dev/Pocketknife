@@ -374,6 +374,7 @@ public class Utils {
 
     /**
      * Clears all goals off an NMS mob.
+     * Probably should use Paper API instead.
      * @param mob Mob to strip goals off of
      */
     public static void clearMobGoals(net.minecraft.world.entity.Mob mob) {
